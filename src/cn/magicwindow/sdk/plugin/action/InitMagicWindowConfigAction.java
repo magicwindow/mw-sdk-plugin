@@ -22,8 +22,12 @@ public class InitMagicWindowConfigAction extends BaseAction {
         final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 
         final String channel = Messages.showInputDialog(project,
-                "您的渠道号", "Fill in the channel",
+                "您的渠道号:", "Fill in the channel",
                 Messages.getQuestionIcon());
+
+        if (channel == null) {
+            return;
+        }
 
         final SelectionModel selectionModel = editor.getSelectionModel();
 
