@@ -39,12 +39,12 @@ public class CodeGenerator {
         return sb.toString();
     }
 
-    public void generateInitMWConfig() {
+    public void generateInitMWConfig(String channel) {
         PsiMethod onCreate = mClass.findMethodsByName("onCreate", false)[0];
         if (onCreate!=null) {
             PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mClass.getProject());
 
-            PsiMethod methodFromText = elementFactory.createMethodFromText(generateInitMWConfigCreator(), mClass);
+            PsiMethod methodFromText = elementFactory.createMethodFromText(generateInitMWConfigCreator(channel), mClass);
             PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",mClass);
 
             JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mClass.getProject());
@@ -53,12 +53,12 @@ public class CodeGenerator {
         }
     }
 
-    private String generateInitMWConfigCreator() {
+    private String generateInitMWConfigCreator(String channel) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("private void initMW() {").append("\n");
         sb.append("com.zxinsight.MWConfiguration config = new com.zxinsight.MWConfiguration(this);").append("\n");
-        sb.append("config.setChannel(\"您的渠道号\")").append("\n")
+        sb.append("config.setChannel(\""+channel+"\")").append("\n")
                 .append(".setDebugModel(true)").append("\n")
                 .append(".setPageTrackWithFragment(true)").append("\n")
                 .append(".setWebViewBroadcastOpen(true)").append("\n")

@@ -6,6 +6,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
 
 /**
@@ -20,12 +21,16 @@ public class InitMagicWindowConfigAction extends BaseAction {
         final Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);
         final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 
+        final String channel = Messages.showInputDialog(project,
+                "您的渠道号", "Fill in the channel",
+                Messages.getQuestionIcon());
+
         final SelectionModel selectionModel = editor.getSelectionModel();
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                new CodeGenerator(psiClass).generateInitMWConfig();
+                new CodeGenerator(psiClass).generateInitMWConfig(channel);
             }
         };
 
