@@ -2,13 +2,14 @@ package cn.magicwindow.sdk.plugin.action;
 
 import cn.magicwindow.sdk.plugin.CodeGenerator;
 import cn.magicwindow.sdk.plugin.ConfigDialog;
+import cn.magicwindow.sdk.plugin.PluginUtils;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.MessageType;
 import com.intellij.psi.PsiClass;
 
 /**
@@ -17,6 +18,7 @@ import com.intellij.psi.PsiClass;
 public class InitMagicWindowConfigAction extends BaseAction {
 
     private String channel;
+    private String ak;
 
     @Override
     public void actionPerformed(AnActionEvent e) {
@@ -35,6 +37,14 @@ public class InitMagicWindowConfigAction extends BaseAction {
         channel = dialog.getChannel();
 
         if (channel == null) {
+            PluginUtils.showNotification(project, MessageType.ERROR, "为了便于数据统计, 渠道号不能为空");
+            return;
+        }
+
+        ak = dialog.getAk();
+
+        if (ak == null) {
+            PluginUtils.showNotification(project, MessageType.ERROR, "魔窗的AppKey 不能为空");
             return;
         }
 
@@ -50,4 +60,5 @@ public class InitMagicWindowConfigAction extends BaseAction {
         WriteCommandAction.runWriteCommandAction(project, runnable);
         selectionModel.removeSelection();
     }
+
 }

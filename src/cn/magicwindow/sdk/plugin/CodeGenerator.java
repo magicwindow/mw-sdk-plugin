@@ -51,6 +51,8 @@ public class CodeGenerator {
             styleManager.shortenClassReferences(mClass.add(methodFromText));
             styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
         }
+
+
     }
 
     private String generateInitMWConfigCreator(String channel) {
