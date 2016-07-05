@@ -48,12 +48,12 @@ public class InitMagicWindowConfigAction extends BaseAction {
             return;
         }
 
-        final SelectionModel selectionModel = editor.getSelectionModel();
+        SelectionModel selectionModel = editor.getSelectionModel();
 
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                new CodeGenerator(psiClass).generateInitMWConfig(channel);
+                new CodeGenerator(psiClass).generateInitMWConfig(channel,ak);
             }
         };
 
