@@ -35,7 +35,7 @@
       <add-to-group group-id="CodeMenu" anchor="first"/>
     </action>
     <action id="mw-sdk-plugin.InitMagicWindowConfigAction" class="cn.magicwindow.sdk.plugin.action.InitMagicWindowConfigAction"
-            text="InitMagicWindowConfigAction" description="init magicwindow sdk&#39;s config">
+            text="InitMagicWindowConfig" description="init magicwindow sdk&#39;s config">
       <add-to-group group-id="CodeMenu" anchor="first"/>
     </action>
   </actions>
