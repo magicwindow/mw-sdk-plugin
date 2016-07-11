@@ -1,11 +1,11 @@
 <idea-plugin version="2">
-  <id>com.your.company.unique.plugin.id</id>
-  <name>Plugin display name here</name>
+  <id>cn.magicwindow.sdk</id>
+  <name>magicwindow sdk plugin</name>
   <version>1.0</version>
   <vendor email="tony.shen@magicwindow.cn" url="http://www.magicwindow.cn">magicwindow</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
+      Convenient fast integrated magicwindow's SDK<br>
       <em>most HTML tags may be used</em>
     ]]></description>
 
