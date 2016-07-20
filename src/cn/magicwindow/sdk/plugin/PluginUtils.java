@@ -54,7 +54,7 @@ public class PluginUtils {
                 .show(RelativePoint.getCenterOf(statusBar.getComponent()), Balloon.Position.atRight);
     }
 
-    public static PsiClass isClassAvailableForProject(@NotNull Project project, @NotNull String className) {
+    public static PsiClass getClassForProject(@NotNull Project project, @NotNull String className) {
         PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className,
                 new EverythingGlobalScope(project));
         return classInModule;

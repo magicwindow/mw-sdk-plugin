@@ -16,6 +16,9 @@ public class WriteRunnable implements Runnable {
     }
 
     public void run() {
-        document.setText(text);
+
+        if (document!=null) {
+            document.setText(text);
+        }
     }
 }
