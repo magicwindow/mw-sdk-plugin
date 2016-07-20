@@ -45,9 +45,10 @@ public class ConfigDialog extends DialogWrapper {
         panel.add(container, BorderLayout.WEST);
 
         JPanel rightPanel = new JPanel(new BorderLayout());
-        JPanel jPanel = new JPanel(new FlowLayout());
+
+        JPanel channelPanel = new JPanel(new FlowLayout());
         JLabel channelLabel = new JLabel("  您的渠道号:");
-        jPanel.add(channelLabel);
+        channelPanel.add(channelLabel);
         JTextField channelTextField = new JTextField(20);
         channelTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -65,12 +66,12 @@ public class ConfigDialog extends DialogWrapper {
 
             }
         });
-        jPanel.add(channelTextField);
-        rightPanel.add(jPanel, BorderLayout.PAGE_START);
+        channelPanel.add(channelTextField);
+        rightPanel.add(channelPanel, BorderLayout.PAGE_START);
 
-        JPanel jPanel2 = new JPanel(new FlowLayout());
+        JPanel akPanel = new JPanel(new FlowLayout());
         JLabel akLabel = new JLabel("您的Appkey:");
-        jPanel2.add(akLabel);
+        akPanel.add(akLabel);
         JTextField akTextField = new JTextField(20);
         akTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -88,9 +89,9 @@ public class ConfigDialog extends DialogWrapper {
 
             }
         });
-        jPanel2.add(akTextField);
+        akPanel.add(akTextField);
 
-        rightPanel.add(jPanel2, BorderLayout.PAGE_END);
+        rightPanel.add(akPanel, BorderLayout.PAGE_END);
 
 
         panel.add(rightPanel, BorderLayout.CENTER);
