@@ -1,17 +1,14 @@
 <idea-plugin version="2">
   <id>cn.magicwindow.sdk</id>
   <name>magicwindow sdk plugin</name>
-  <version>1.0</version>
+  <version>1.1.1</version>
   <vendor email="tony.shen@magicwindow.cn" url="http://www.magicwindow.cn">magicwindow</vendor>
 
   <description><![CDATA[
       Convenient fast integrated magicwindow's SDK<br>
-      <em>most HTML tags may be used</em>
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
     ]]>
   </change-notes>
 
@@ -20,9 +17,9 @@
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+  <!-- uncomment to enable plugin in all products -->
+  <depends>com.intellij.modules.java</depends>
+  <depends optional="true">com.intellij.modules.androidstudio</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
