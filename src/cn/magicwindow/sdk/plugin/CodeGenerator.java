@@ -21,7 +21,15 @@ public class CodeGenerator {
     }
 
     public void generateMLinkConfig() {
-        PsiMethod onCreate = mClass.findMethodsByName("onCreate", false)[0];
+
+        PsiMethod onCreate = null;
+        try {
+            onCreate = mClass.findMethodsByName("onCreate", false)[0];
+        } catch(ArrayIndexOutOfBoundsException e) {
+            PluginUtils.showErrorNotification(mClass.getProject(), "MLink的配置只能在App的引导页或者首页的onCreate()中");
+            return;
+        }
+
         if (onCreate!=null) {
             PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mClass.getProject());
 
@@ -44,7 +52,15 @@ public class CodeGenerator {
     }
 
     public void generateInitMWConfig(String channel,String ak) {
-        PsiMethod onCreate = mClass.findMethodsByName("onCreate", false)[0];
+
+        PsiMethod onCreate = null;
+        try {
+            onCreate = mClass.findMethodsByName("onCreate", false)[0];
+        } catch(ArrayIndexOutOfBoundsException e) {
+            PluginUtils.showErrorNotification(mClass.getProject(), "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
+            return;
+        }
+
         if (onCreate!=null) {
             PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mClass.getProject());
 
