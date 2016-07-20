@@ -27,7 +27,7 @@ public class InitMagicWindowConfigAction extends BaseAction {
         final Editor editor = e.getRequiredData(CommonDataKeys.EDITOR);
         final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 
-        ConfigDialog dialog = new ConfigDialog(getEventProject(e),"初始化魔窗sdk配置");
+        ConfigDialog dialog = new ConfigDialog(project,"初始化魔窗sdk配置");
         dialog.show();
 
         if (dialog.getExitCode() != DialogWrapper.OK_EXIT_CODE) {
@@ -37,14 +37,14 @@ public class InitMagicWindowConfigAction extends BaseAction {
         channel = dialog.getChannel();
 
         if (channel == null) {
-            PluginUtils.showNotification(project, MessageType.ERROR, "为了便于数据统计, 渠道号不能为空");
+            PluginUtils.showErrorNotification(project, "为了便于数据统计, 渠道号不能为空");
             return;
         }
 
         ak = dialog.getAk();
 
         if (ak == null) {
-            PluginUtils.showNotification(project, MessageType.ERROR, "魔窗的AppKey 不能为空");
+            PluginUtils.showErrorNotification(project, "魔窗的AppKey 不能为空");
             return;
         }
 
