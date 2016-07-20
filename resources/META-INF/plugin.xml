@@ -26,15 +26,26 @@
   </extensions>
 
   <actions>
-    <!-- Add your actions here -->
+    <!-- Add your actions here
     <action id="mw-sdk-plugin.InitMLinkAction" class="cn.magicwindow.sdk.plugin.action.InitMLinkAction"
             text="InitMLink" description="init magicwindow sdk&#39;s mLink config">
       <add-to-group group-id="CodeMenu" anchor="first"/>
-    </action>
-    <action id="mw-sdk-plugin.InitMagicWindowConfigAction" class="cn.magicwindow.sdk.plugin.action.InitMagicWindowConfigAction"
+    </action> -->
+    <!-- <action id="mw-sdk-plugin.InitMagicWindowConfigAction" class="cn.magicwindow.sdk.plugin.action.InitMagicWindowConfigAction"
             text="InitMagicWindowConfig" description="init magicwindow sdk&#39;s config">
       <add-to-group group-id="CodeMenu" anchor="first"/>
-    </action>
+    </action>-->
+
+
+    <group id="MagicWindowSDKPlugin.Menu" text="_MagicWindow" description="MagicWindow SDK Menu">
+      <add-to-group group-id="MainMenu" anchor="last"/>
+      <action id="mw-sdk-plugin.InitMagicWindowConfigAction" class="cn.magicwindow.sdk.plugin.action.InitMagicWindowConfigAction"
+              text="InitMagicWindowConfig" description="init magicwindow sdk&#39;s config">
+      </action>
+      <action id="mw-sdk-plugin.InitMLinkAction" class="cn.magicwindow.sdk.plugin.action.InitMLinkAction"
+              text="InitMLink" description="init magicwindow sdk&#39;s mLink config">
+      </action>
+    </group>
   </actions>
 
 </idea-plugin>
