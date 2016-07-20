@@ -6,7 +6,11 @@ import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.ui.awt.RelativePoint;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by tony on 16/7/5.
@@ -48,5 +52,11 @@ public class PluginUtils {
                 .setFadeoutTime(7500)
                 .createBalloon()
                 .show(RelativePoint.getCenterOf(statusBar.getComponent()), Balloon.Position.atRight);
+    }
+
+    public static PsiClass isClassAvailableForProject(@NotNull Project project, @NotNull String className) {
+        PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className,
+                new EverythingGlobalScope(project));
+        return classInModule;
     }
 }
