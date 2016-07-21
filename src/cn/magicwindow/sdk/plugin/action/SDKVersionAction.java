@@ -13,24 +13,31 @@ import com.intellij.psi.PsiMethod;
  */
 public class SDKVersionAction extends BaseAction {
 
+    private final static String SDK_PATH = "com.zxinsight.MagicWindowSDK";
+    private final static String SDK_VERSION_METHOD = "getSDKVersion";
+
     @Override
     public void actionPerformed(AnActionEvent e) {
 
         final Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 
-        PsiClass mSDK = PluginUtils.getClassForProject(project,"com.zxinsight.MagicWindowSDK");
+        PsiClass mSDK = PluginUtils.getClassForProject(project,SDK_PATH);
 
         if (mSDK == null) {
             PluginUtils.showErrorNotification(project,"请先下载sdk");
             return;
         }
 
-        PsiMethod[] methods = mSDK.findMethodsByName("getSDKVersion",true);
+        PsiMethod[] methods = mSDK.findMethodsByName(SDK_VERSION_METHOD,true);
 
         String sdkVersion = null;
         if (methods!=null && methods[0]!=null) {
             PsiMethod method = methods[0];
             sdkVersion = getVersion(method.getText());
+        }
+
+        if (sdkVersion == null) {
+            sdkVersion = "";
         }
 
         Messages.showMessageDialog(project,sdkVersion,
