@@ -37,6 +37,17 @@
       </action>
       <action id="mw-sdk-plugin.SDKVersionAction" class="cn.magicwindow.sdk.plugin.action.SDKVersionAction" text="SDKVersion"/>
     </group>
+
+    <action id="mw-sdk-plugin.GenerateMLinkAnnotationAction"
+            class="cn.magicwindow.sdk.plugin.action.GenerateMLinkRouterAction"
+            text="@MLinkRouter Generate">
+      <add-to-group group-id="GenerateGroup" anchor="last"/>
+    </action>
+    <action id="mw-sdk-plugin.GenerateMLinkDefaultRouterAction"
+            class="cn.magicwindow.sdk.plugin.action.GenerateMLinkDefaultRouterAction"
+            text="@MLinkDefaultRouter Generate">
+      <add-to-group group-id="GenerateGroup" anchor="last"/>
+    </action>
   </actions>
 
 </idea-plugin>
