@@ -7,6 +7,7 @@ import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtil;
 
@@ -25,7 +26,20 @@ public class GenerateMLinkHandler extends EditorWriteActionHandler {
 
     @Override
     public void executeWriteAction(Editor editor, Caret caret, DataContext dataContext) {
-        PsiJavaFile psiJavaFile = (PsiJavaFile) dataContext.getData(CommonDataKeys.PSI_FILE.getName());
+
+        PsiJavaFile psiJavaFile = null;
+        try {
+            psiJavaFile = (PsiJavaFile) dataContext.getData(CommonDataKeys.PSI_FILE.getName());
+        } catch (java.lang.ClassCastException e) {
+            e.printStackTrace();
+            Messages.showInfoMessage("无法在该文件上使用mLink Annotation","不能生成注解");
+            return;
+        }
+
+        if (psiJavaFile == null) {
+            return;
+        }
+
         Project project = psiJavaFile.getProject();
         PsiClass mClass = getCurrentPsiClass(psiJavaFile);
         if (mClass == null) {
@@ -33,9 +47,9 @@ public class GenerateMLinkHandler extends EditorWriteActionHandler {
         }
 
         PsiClass psiClass = null;
-        if (mLinkType == 1) {
+        if (mLinkType == MLINK_TYPE) {
             psiClass = PluginUtils.getClassForProject(project,"com.zxinsight.mlink.annotation.MLinkRouter");
-        } else if (mLinkType == 2) {
+        } else if (mLinkType == MLINK_DEFAULT_TYPE) {
             psiClass = PluginUtils.getClassForProject(project,"com.zxinsight.mlink.annotation.MLinkDefaultRouter");
         }
 
@@ -46,9 +60,9 @@ public class GenerateMLinkHandler extends EditorWriteActionHandler {
         psiJavaFile.importClass(psiClass);
 
         PsiModifierList modifierList = mClass.getModifierList();
-        if (mLinkType == 1) {
+        if (mLinkType == MLINK_TYPE) {
             modifierList.addAnnotation("MLinkRouter(keys={})");
-        } else if (mLinkType == 2) {
+        } else if (mLinkType == MLINK_DEFAULT_TYPE) {
             modifierList.addAnnotation("MLinkDefaultRouter");
         }
     }

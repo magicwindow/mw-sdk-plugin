@@ -20,6 +20,9 @@ public class CodeGenerator {
         mClass = psiClass;
     }
 
+    /**
+     * 生成mLink配置
+     */
     public void generateMLinkConfig() {
 
         PsiMethod onCreate = null;
@@ -51,6 +54,11 @@ public class CodeGenerator {
         return sb.toString();
     }
 
+    /**
+     * 生成初始化魔窗sdk的配置
+     * @param channel
+     * @param ak
+     */
     public void generateInitMWConfig(String channel,String ak) {
 
         PsiMethod onCreate = null;
