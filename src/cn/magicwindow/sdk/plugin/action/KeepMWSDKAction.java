@@ -80,10 +80,10 @@ public class KeepMWSDKAction extends BaseAction{
         if (proguard.indexOf("-keep class com.tencent.mm.sdk.** {*;}")==-1) {
             result.append("\n").append("-keep class com.tencent.mm.sdk.** {*;}");
         }
-        if (!proguard.contains("-keep class com.zxinsight.** {*;}")) {
+        if (proguard.indexOf("-keep class com.zxinsight.** {*;}")==-1) {
             result.append("\n").append("-keep class com.zxinsight.** {*;}");
         }
-        if (!proguard.contains("-dontwarn com.zxinsight.**")) {
+        if (proguard.indexOf("-dontwarn com.zxinsight.**")==-1) {
             result.append("\n").append("-dontwarn com.zxinsight.**");
         }
 
