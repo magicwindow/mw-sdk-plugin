@@ -16,7 +16,7 @@ import com.intellij.psi.PsiFile;
  */
 public class KeepMWSDKAction extends BaseAction{
 
-    private static String PROGUARD_PRO = "proguard-rule.pro";
+    private static String PROGUARD_PRO = "proguard-rules.pro";
 
     @Override
     public void update(AnActionEvent e) {
@@ -60,12 +60,13 @@ public class KeepMWSDKAction extends BaseAction{
         }
         if (result == null) {
             PsiDirectory defaultDir = currentDir.getParentDirectory();
-            if (defaultDir.findFile(PROGUARD_PRO)==null) {
-                defaultDir = defaultDir.getParentDirectory();
-            }
 
-            if (defaultDir.findFile(PROGUARD_PRO)==null) {
-                defaultDir = defaultDir.getParentDirectory();
+            for (int i=0;i<10;i++) {
+                if (defaultDir.findFile(PROGUARD_PRO)==null) {
+                    defaultDir = defaultDir.getParentDirectory();
+                } else {
+                    break;
+                }
             }
 
             result = defaultDir.findFile(PROGUARD_PRO);
