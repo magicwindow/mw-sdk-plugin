@@ -7,11 +7,11 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 
 /**
+ * 混淆时排除我们的sdk
  * Created by tony on 16/7/23.
  */
 public class KeepMWSDKAction extends BaseAction{
@@ -35,9 +35,16 @@ public class KeepMWSDKAction extends BaseAction{
             Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
             if (document != null && document.isWritable()) {
                 String proguard = document.getCharsSequence().toString();
-                proguard += "-keep class com.tencent.mm.sdk.** {*;}"
-                        +"\n"+"-keep class com.zxinsight.** {*;}"
-                        +"\n"+"-dontwarn com.zxinsight.**";
+                String keepContent = addKeepMWSDK(proguard);
+
+                if (keepContent==null) {
+                    return;
+                }
+
+                if (proguard==null) {
+                    proguard = "";
+                }
+                proguard += keepContent;
                 Runnable writeRunnable = new WriteRunnable(proguard, document);
                 ApplicationManager.getApplication().runWriteAction(writeRunnable);
             }
@@ -65,5 +72,21 @@ public class KeepMWSDKAction extends BaseAction{
         }
 
         return result;
+    }
+
+    private String addKeepMWSDK(String proguard) {
+
+        StringBuilder result = new StringBuilder();
+        if (proguard.indexOf("-keep class com.tencent.mm.sdk.** {*;}")==-1) {
+            result.append("\n").append("-keep class com.tencent.mm.sdk.** {*;}");
+        }
+        if (!proguard.contains("-keep class com.zxinsight.** {*;}")) {
+            result.append("\n").append("-keep class com.zxinsight.** {*;}");
+        }
+        if (!proguard.contains("-dontwarn com.zxinsight.**")) {
+            result.append("\n").append("-dontwarn com.zxinsight.**");
+        }
+
+        return result.toString();
     }
 }
