@@ -1,4 +1,4 @@
-package cn.magicwindow.sdk.plugin;
+package cn.magicwindow.sdk.plugin.dialog;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;

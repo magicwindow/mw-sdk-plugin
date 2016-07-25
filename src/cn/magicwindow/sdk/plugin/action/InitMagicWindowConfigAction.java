@@ -1,7 +1,7 @@
 package cn.magicwindow.sdk.plugin.action;
 
 import cn.magicwindow.sdk.plugin.CodeGenerator;
-import cn.magicwindow.sdk.plugin.ConfigDialog;
+import cn.magicwindow.sdk.plugin.dialog.ConfigDialog;
 import cn.magicwindow.sdk.plugin.PluginUtils;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.MessageType;
 import com.intellij.psi.PsiClass;
 
 /**
