@@ -10,7 +10,7 @@ public class WriteRunnable implements Runnable {
     private String text;
     private Document document;
 
-    WriteRunnable(String text, Document document) {
+    public WriteRunnable(String text, Document document) {
         this.text = text;
         this.document = document;
     }

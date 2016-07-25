@@ -38,7 +38,9 @@
       <action id="mw-sdk-plugin.InitMLinkAction" class="cn.magicwindow.sdk.plugin.action.InitMLinkAction"
               text="InitMLink" description="init magicwindow sdk&#39;s mLink config">
       </action>
+      <action id="mw-sdk-plugin.KeepMWSDKAction" class="cn.magicwindow.sdk.plugin.action.KeepMWSDKAction" text="KeepMWSDK"/>
       <action id="mw-sdk-plugin.SDKVersionAction" class="cn.magicwindow.sdk.plugin.action.SDKVersionAction" text="SDKVersion"/>
+      <action id="mw-sdk-plugin.AboutUsAction" class="cn.magicwindow.sdk.plugin.action.AboutUsAction" text="AboutUs"/>
     </group>
 
     <action id="mw-sdk-plugin.GenerateMLinkAnnotationAction"
