@@ -116,15 +116,16 @@ public class CodeGenerator {
         PsiFile result = null;
 
         if (currentDir!=null) {
-            result = currentDir.findFile("AndroidManifest.xml");
-        }
+            for (int i=0;i<10;i++) {
+                if (currentDir.getParentDirectory()!=null && currentDir.getParentDirectory().getName().equals("main")) {
+                    currentDir = currentDir.getParentDirectory();
+                    result = currentDir.findFile("AndroidManifest.xml");
+                    break;
+                } else {
+                    currentDir = currentDir.getParentDirectory();
+                }
+            }
 
-        if (result == null) {
-            PsiDirectory defaultDir = currentDir.getParentDirectory().findSubdirectory("manifests");
-            if (defaultDir == null)
-                return null;
-
-            result = defaultDir.findFile("AndroidManifest.xml");
         }
 
         return result;
