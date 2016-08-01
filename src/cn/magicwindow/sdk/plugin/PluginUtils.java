@@ -8,6 +8,8 @@ import com.intellij.openapi.wm.StatusBar;
 import com.intellij.openapi.wm.WindowManager;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
@@ -58,5 +60,29 @@ public class PluginUtils {
         PsiClass classInModule = JavaPsiFacade.getInstance(project).findClass(className,
                 new EverythingGlobalScope(project));
         return classInModule;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static PsiFile getAndroidManifest(PsiClass mClass) {
+        PsiDirectory currentDir = mClass.getContainingFile().getContainingDirectory();
+        PsiFile result = null;
+
+        if (currentDir!=null) {
+            for (int i=0;i<10;i++) {
+                if (currentDir.getParentDirectory()!=null && currentDir.getParentDirectory().getName().equals("main")) {
+                    currentDir = currentDir.getParentDirectory();
+                    result = currentDir.findFile("AndroidManifest.xml");
+                    break;
+                } else {
+                    currentDir = currentDir.getParentDirectory();
+                }
+            }
+
+        }
+
+        return result;
     }
 }

@@ -1,5 +1,6 @@
 package cn.magicwindow.sdk.plugin;
 
+import cn.magicwindow.sdk.plugin.exception.MWPluginException;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -14,9 +15,12 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager;
  */
 public class CodeGenerator {
 
-    private final PsiClass mClass;
+    private PsiClass mClass;
 
     public CodeGenerator(PsiClass psiClass) {
+        if (psiClass == null) {
+            throw new MWPluginException("psiClass is null");
+        }
         mClass = psiClass;
     }
 
@@ -80,7 +84,7 @@ public class CodeGenerator {
             styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
         }
 
-        PsiFile manifest = getAndroidManfest();
+        PsiFile manifest = PluginUtils.getAndroidManifest(mClass);
         if (manifest!=null) {
             VirtualFile childFile = manifest.getVirtualFile();
             Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
@@ -90,6 +94,8 @@ public class CodeGenerator {
                 Runnable writeRunnable = new WriteRunnable(androidManifest, document);
                 ApplicationManager.getApplication().runWriteAction(writeRunnable);
             }
+        } else {
+            PluginUtils.showErrorNotification(mClass.getProject(),"找不到AndroidManifest文件");
         }
 
     }
@@ -109,26 +115,6 @@ public class CodeGenerator {
         sb.append("com.zxinsight.Session.setAutoSession(this);");
         sb.append("}");
         return sb.toString();
-    }
-
-    private PsiFile getAndroidManfest() {
-        PsiDirectory currentDir = mClass.getContainingFile().getContainingDirectory();
-        PsiFile result = null;
-
-        if (currentDir!=null) {
-            for (int i=0;i<10;i++) {
-                if (currentDir.getParentDirectory()!=null && currentDir.getParentDirectory().getName().equals("main")) {
-                    currentDir = currentDir.getParentDirectory();
-                    result = currentDir.findFile("AndroidManifest.xml");
-                    break;
-                } else {
-                    currentDir = currentDir.getParentDirectory();
-                }
-            }
-
-        }
-
-        return result;
     }
 
     private String generateAndroidManifest(String channel,String ak) {
