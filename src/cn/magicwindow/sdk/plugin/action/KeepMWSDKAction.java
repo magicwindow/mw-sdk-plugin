@@ -1,5 +1,6 @@
 package cn.magicwindow.sdk.plugin.action;
 
+import cn.magicwindow.sdk.plugin.PluginUtils;
 import cn.magicwindow.sdk.plugin.WriteRunnable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -48,6 +49,8 @@ public class KeepMWSDKAction extends BaseAction{
                 Runnable writeRunnable = new WriteRunnable(proguard, document);
                 ApplicationManager.getApplication().runWriteAction(writeRunnable);
             }
+        } else {
+            PluginUtils.showErrorNotification(psiFile.getProject(),"找不到proguard-rules.pro文件");
         }
     }
 

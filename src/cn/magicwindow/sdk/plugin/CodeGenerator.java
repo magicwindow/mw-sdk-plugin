@@ -21,6 +21,7 @@ public class CodeGenerator {
         if (psiClass == null) {
             throw new MWPluginException("psiClass is null");
         }
+
         mClass = psiClass;
     }
 
@@ -95,7 +96,7 @@ public class CodeGenerator {
                 ApplicationManager.getApplication().runWriteAction(writeRunnable);
             }
         } else {
-            PluginUtils.showErrorNotification(mClass.getProject(),"找不到AndroidManifest文件");
+            PluginUtils.showErrorNotification(mClass.getProject(),"找不到AndroidManifest.xml文件");
         }
 
     }
