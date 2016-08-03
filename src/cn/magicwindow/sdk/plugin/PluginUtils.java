@@ -25,7 +25,7 @@ public class PluginUtils {
      * @param project
      * @param text
      */
-    public static void showInfoNotification(Project project, String text) {
+    public static void showInfoNotification(@NotNull Project project,@NotNull String text) {
         showNotification(project, MessageType.INFO, text);
     }
 
@@ -35,7 +35,7 @@ public class PluginUtils {
      * @param project
      * @param text
      */
-    public static void showErrorNotification(Project project, String text) {
+    public static void showErrorNotification(@NotNull Project project,@NotNull String text) {
         showNotification(project, MessageType.ERROR, text);
     }
 
@@ -66,7 +66,7 @@ public class PluginUtils {
      *
      * @return
      */
-    public static PsiFile getAndroidManifest(PsiClass mClass) {
+    public static PsiFile getAndroidManifest(@NotNull PsiClass mClass) {
         PsiDirectory currentDir = mClass.getContainingFile().getContainingDirectory();
         PsiFile result = null;
 
@@ -85,4 +85,5 @@ public class PluginUtils {
 
         return result;
     }
+
 }

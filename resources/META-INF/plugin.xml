@@ -41,6 +41,7 @@
               text="Init MLink" description="init magicwindow sdk&#39;s mLink config">
       </action>
       <action id="mw-sdk-plugin.KeepMWSDKAction" class="cn.magicwindow.sdk.plugin.action.KeepMWSDKAction" text="Keep MW SDK"/>
+      <action id="mw-sdk-plugin.OneStopSolutionAction" class="cn.magicwindow.sdk.plugin.action.OneStopSolutionAction" text="One Stop Solution"/>
       <action id="mw-sdk-plugin.SDKVersionAction" class="cn.magicwindow.sdk.plugin.action.SDKVersionAction" text="Check SDK Version"/>
       <action id="mw-sdk-plugin.AboutUsAction" class="cn.magicwindow.sdk.plugin.action.AboutUsAction" text="About Us"/>
     </group>
