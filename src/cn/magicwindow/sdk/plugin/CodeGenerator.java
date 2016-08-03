@@ -37,9 +37,17 @@ public class CodeGenerator {
      */
     public void generateMLinkConfig() {
 
+        generateMLinkConfig(mClass);
+    }
+
+    /**
+     * 生成mLink配置
+     */
+    private void generateMLinkConfig(PsiClass psiClass) {
+
         PsiMethod onCreate = null;
         try {
-            onCreate = mClass.findMethodsByName("onCreate", false)[0];
+            onCreate = psiClass.findMethodsByName("onCreate", false)[0];
         } catch(ArrayIndexOutOfBoundsException e) {
             PluginUtils.showErrorNotification(mClass.getProject(), "MLink的配置只能在App的引导页或者首页的onCreate()中");
             return;
@@ -48,7 +56,7 @@ public class CodeGenerator {
         if (onCreate!=null) {
             PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mClass.getProject());
 
-            PsiStatement statementFromText = elementFactory.createStatementFromText(generateMLinkConfigCreator(), mClass);
+            PsiStatement statementFromText = elementFactory.createStatementFromText(generateMLinkConfigCreator(), psiClass);
 
             JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mClass.getProject());
             styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
@@ -171,6 +179,7 @@ public class CodeGenerator {
                 String packageName = androidManifest.getPackageName();
                 List<ActivityEntry> activities = null;
                 ActivityEntry launcherActivity = null;
+
                 if (androidManifest.getApplication()!=null && androidManifest.getApplication().getActivities()!=null
                         && androidManifest.getApplication().getActivities().size()>0) {
                     activities = androidManifest.getApplication().getActivities();
@@ -194,18 +203,46 @@ public class CodeGenerator {
                     }
                 }
 
-                // 获取启动的activity
+                // 获取启动的activity, 在启动的activity中注册mLink
                 if (launcherActivity!=null) {
                     if (launcherActivity.getName()!=null && launcherActivity.getName().startsWith(".")) {
                         launcherActivity.setName(packageName+launcherActivity.getName());
                     }
 
+                    PsiClass launcherClass = PluginUtils.getClassForProject(mClass.getProject(),launcherActivity.getName());
+                    if (launcherClass!=null) {
+                        generateMLinkConfig(launcherClass);
+                    } else {
+                        PluginUtils.showErrorNotification(mClass.getProject(), "无法找到"+launcherActivity.getName());
+                    }
                 }
 
                 // 获取application
-                if (androidManifest.getApplication()!=null && androidManifest.getApplication().getName()!=null
-                        && androidManifest.getApplication().getName().startsWith(".")) {
-                    androidManifest.getApplication().setName(packageName+androidManifest.getApplication().getName());
+                if (androidManifest.getApplication()!=null && androidManifest.getApplication().getName()!=null) {
+                    if (androidManifest.getApplication().getName().startsWith(".")) {
+                        androidManifest.getApplication().setName(packageName+androidManifest.getApplication().getName());
+                    }
+
+                    PsiClass applicationClass = PluginUtils.getClassForProject(mClass.getProject(),androidManifest.getApplication().getName());
+
+                    PsiMethod onCreate = null;
+                    try {
+                        onCreate = applicationClass.findMethodsByName("onCreate", false)[0];
+                    } catch(ArrayIndexOutOfBoundsException e) {
+                        PluginUtils.showErrorNotification(mClass.getProject(), "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
+                        return;
+                    }
+
+                    if (onCreate!=null) {
+                        PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mClass.getProject());
+
+                        PsiMethod methodFromText = elementFactory.createMethodFromText(generateInitMWConfigCreator(channel), applicationClass);
+                        PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",mClass);
+
+                        JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mClass.getProject());
+                        styleManager.shortenClassReferences(applicationClass.add(methodFromText));
+                        styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
+                    }
                 }
             }
 
