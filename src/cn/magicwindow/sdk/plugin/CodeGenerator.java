@@ -9,6 +9,7 @@ import cn.magicwindow.sdk.plugin.xml.XmlHandler;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
@@ -23,6 +24,7 @@ import java.util.List;
 public class CodeGenerator {
 
     private PsiClass mClass;
+    private Project mProject;
 
     public CodeGenerator(PsiClass psiClass) {
         if (psiClass == null) {
@@ -30,6 +32,7 @@ public class CodeGenerator {
         }
 
         mClass = psiClass;
+        mProject = mClass.getProject();
     }
 
     /**
@@ -49,16 +52,16 @@ public class CodeGenerator {
         try {
             onCreate = psiClass.findMethodsByName("onCreate", false)[0];
         } catch(ArrayIndexOutOfBoundsException e) {
-            PluginUtils.showErrorNotification(mClass.getProject(), "MLink的配置只能在App的引导页或者首页的onCreate()中");
+            PluginUtils.showErrorNotification(mProject, "MLink的配置只能在App的引导页或者首页的onCreate()中");
             return;
         }
 
         if (onCreate!=null) {
-            PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mClass.getProject());
+            PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
 
             PsiStatement statementFromText = elementFactory.createStatementFromText(generateMLinkConfigCreator(), psiClass);
 
-            JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mClass.getProject());
+            JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
             styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
         }
     }
@@ -85,17 +88,17 @@ public class CodeGenerator {
         try {
             onCreate = mClass.findMethodsByName("onCreate", false)[0];
         } catch(ArrayIndexOutOfBoundsException e) {
-            PluginUtils.showErrorNotification(mClass.getProject(), "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
+            PluginUtils.showErrorNotification(mProject, "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
             return;
         }
 
         if (onCreate!=null) {
-            PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mClass.getProject());
+            PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
 
             PsiMethod methodFromText = elementFactory.createMethodFromText(generateInitMWConfigCreator(channel), mClass);
             PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",mClass);
 
-            JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mClass.getProject());
+            JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
             styleManager.shortenClassReferences(mClass.add(methodFromText));
             styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
         }
@@ -111,7 +114,7 @@ public class CodeGenerator {
                 ApplicationManager.getApplication().runWriteAction(writeRunnable);
             }
         } else {
-            PluginUtils.showErrorNotification(mClass.getProject(),"找不到AndroidManifest.xml文件");
+            PluginUtils.showErrorNotification(mProject,"找不到AndroidManifest.xml文件");
         }
 
     }
@@ -168,7 +171,7 @@ public class CodeGenerator {
                 ApplicationManager.getApplication().runWriteAction(writeRunnable);
             }
         } else {
-            PluginUtils.showErrorNotification(mClass.getProject(),"找不到AndroidManifest.xml文件");
+            PluginUtils.showErrorNotification(mProject,"找不到AndroidManifest.xml文件");
             return;
         }
 
@@ -180,16 +183,17 @@ public class CodeGenerator {
                 List<ActivityEntry> activities = null;
                 ActivityEntry launcherActivity = null;
 
-                if (androidManifest.getApplication()!=null && androidManifest.getApplication().getActivities()!=null
-                        && androidManifest.getApplication().getActivities().size()>0) {
+                if (androidManifest.getApplication()!=null
+                        && Preconditions.isNotBlank(androidManifest.getApplication().getActivities())) {
                     activities = androidManifest.getApplication().getActivities();
 
                     List<IntentFilterEntry> intentFilterEntryList = null;
                     for(ActivityEntry activityEntry:activities) {
-                        if (activityEntry.getIntentFilter()!=null && activityEntry.getIntentFilter().size()>0) {
+                        if (Preconditions.isNotBlank(activityEntry.getIntentFilter())) {
                             intentFilterEntryList = activityEntry.getIntentFilter();
+
                            for (IntentFilterEntry intentFilterEntry:intentFilterEntryList) {
-                               if (intentFilterEntry.getCategories()!=null && intentFilterEntry.getCategories().size()>0) {
+                               if (Preconditions.isNotBlank(intentFilterEntry.getCategories())) {
                                    List<IntentCategory> intentCategories = intentFilterEntry.getCategories();
                                    for (IntentCategory category:intentCategories) {
                                        if ("android.intent.category.LAUNCHER".equals(category.getName())) {
@@ -209,11 +213,11 @@ public class CodeGenerator {
                         launcherActivity.setName(packageName+launcherActivity.getName());
                     }
 
-                    PsiClass launcherClass = PluginUtils.getClassForProject(mClass.getProject(),launcherActivity.getName());
+                    PsiClass launcherClass = PluginUtils.getClassForProject(mProject,launcherActivity.getName());
                     if (launcherClass!=null) {
                         generateMLinkConfig(launcherClass);
                     } else {
-                        PluginUtils.showErrorNotification(mClass.getProject(), "无法找到"+launcherActivity.getName());
+                        PluginUtils.showErrorNotification(mProject, "无法找到"+launcherActivity.getName());
                     }
                 }
 
@@ -223,29 +227,28 @@ public class CodeGenerator {
                         androidManifest.getApplication().setName(packageName+androidManifest.getApplication().getName());
                     }
 
-                    PsiClass applicationClass = PluginUtils.getClassForProject(mClass.getProject(),androidManifest.getApplication().getName());
+                    PsiClass applicationClass = PluginUtils.getClassForProject(mProject,androidManifest.getApplication().getName());
 
                     PsiMethod onCreate = null;
                     try {
                         onCreate = applicationClass.findMethodsByName("onCreate", false)[0];
                     } catch(ArrayIndexOutOfBoundsException e) {
-                        PluginUtils.showErrorNotification(mClass.getProject(), "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
+                        PluginUtils.showErrorNotification(mProject, "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
                         return;
                     }
 
                     if (onCreate!=null) {
-                        PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mClass.getProject());
+                        PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
 
                         PsiMethod methodFromText = elementFactory.createMethodFromText(generateInitMWConfigCreator(channel), applicationClass);
-                        PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",mClass);
+                        PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",applicationClass);
 
-                        JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mClass.getProject());
+                        JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
                         styleManager.shortenClassReferences(applicationClass.add(methodFromText));
                         styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
                     }
                 }
             }
-
         }
     }
 }
