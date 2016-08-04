@@ -36,7 +36,7 @@ public class CodeGenerator {
     }
 
     /**
-     * 生成mLink配置
+     * 生成当前类的mLink配置
      */
     public void generateMLinkConfig() {
 
@@ -44,7 +44,8 @@ public class CodeGenerator {
     }
 
     /**
-     * 生成mLink配置
+     * 根据某个类来生成mLink的配置
+     * @param psiClass
      */
     private void generateMLinkConfig(PsiClass psiClass) {
 
@@ -84,25 +85,9 @@ public class CodeGenerator {
      */
     public void generateInitMWConfig(String channel,String ak) {
 
-        PsiMethod onCreate = null;
-        try {
-            onCreate = mClass.findMethodsByName("onCreate", false)[0];
-        } catch(ArrayIndexOutOfBoundsException e) {
-            PluginUtils.showErrorNotification(mProject, "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
-            return;
-        }
+        generateInitMWConfigForApplication(mClass,channel);
 
-        if (onCreate!=null) {
-            PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
-
-            PsiMethod methodFromText = elementFactory.createMethodFromText(generateInitMWConfigCreator(channel), mClass);
-            PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",mClass);
-
-            JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
-            styleManager.shortenClassReferences(mClass.add(methodFromText));
-            styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
-        }
-
+        // 生成AndroidManifest.xml的配置
         PsiFile manifest = PluginUtils.getAndroidManifest(mClass);
         if (manifest!=null) {
             VirtualFile childFile = manifest.getVirtualFile();
@@ -116,7 +101,27 @@ public class CodeGenerator {
         } else {
             PluginUtils.showErrorNotification(mProject,"找不到AndroidManifest.xml文件");
         }
+    }
 
+    private void generateInitMWConfigForApplication(PsiClass psiClass,String channel) {
+        PsiMethod onCreate = null;
+        try {
+            onCreate = psiClass.findMethodsByName("onCreate", false)[0];
+        } catch(ArrayIndexOutOfBoundsException e) {
+            PluginUtils.showErrorNotification(mProject, "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
+            return;
+        }
+
+        if (onCreate!=null) {
+            PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
+
+            PsiMethod methodFromText = elementFactory.createMethodFromText(generateInitMWConfigCreator(channel), psiClass);
+            PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",psiClass);
+
+            JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
+            styleManager.shortenClassReferences(psiClass.add(methodFromText));
+            styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
+        }
     }
 
     private String generateInitMWConfigCreator(String channel) {
@@ -135,7 +140,6 @@ public class CodeGenerator {
         sb.append("}");
         return sb.toString();
     }
-
 
     private String generateAndroidManifest(String channel,String ak) {
 
@@ -221,31 +225,17 @@ public class CodeGenerator {
                     }
                 }
 
-                // 获取application
-                if (androidManifest.getApplication()!=null && androidManifest.getApplication().getName()!=null) {
+                // 获取application类, 在自定义的application中注册sdk
+                if (androidManifest.getApplication()!=null && Preconditions.isNotBlank(androidManifest.getApplication().getName())) {
                     if (androidManifest.getApplication().getName().startsWith(".")) {
                         androidManifest.getApplication().setName(packageName+androidManifest.getApplication().getName());
                     }
 
                     PsiClass applicationClass = PluginUtils.getClassForProject(mProject,androidManifest.getApplication().getName());
-
-                    PsiMethod onCreate = null;
-                    try {
-                        onCreate = applicationClass.findMethodsByName("onCreate", false)[0];
-                    } catch(ArrayIndexOutOfBoundsException e) {
-                        PluginUtils.showErrorNotification(mProject, "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
-                        return;
-                    }
-
-                    if (onCreate!=null) {
-                        PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
-
-                        PsiMethod methodFromText = elementFactory.createMethodFromText(generateInitMWConfigCreator(channel), applicationClass);
-                        PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",applicationClass);
-
-                        JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
-                        styleManager.shortenClassReferences(applicationClass.add(methodFromText));
-                        styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
+                    if (applicationClass!=null) {
+                        generateInitMWConfigForApplication(applicationClass,channel);
+                    } else {
+                        PluginUtils.showErrorNotification(mProject, "无法找到"+androidManifest.getApplication().getName());
                     }
                 }
             }
