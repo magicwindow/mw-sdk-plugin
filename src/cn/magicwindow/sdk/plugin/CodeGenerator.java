@@ -6,6 +6,8 @@ import cn.magicwindow.sdk.plugin.model.AndroidManifest;
 import cn.magicwindow.sdk.plugin.model.IntentCategory;
 import cn.magicwindow.sdk.plugin.model.IntentFilterEntry;
 import cn.magicwindow.sdk.plugin.xml.XmlHandler;
+import com.intellij.codeInsight.AnnotationUtil;
+import com.intellij.codeInsight.daemon.impl.analysis.AnnotationsHighlightUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -13,7 +15,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import com.intellij.psi.util.PsiUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -25,6 +29,7 @@ public class CodeGenerator {
 
     private PsiClass mClass;
     private Project mProject;
+    private List<ActivityEntry> activities = null;
 
     public CodeGenerator(PsiClass psiClass) {
         if (psiClass == null) {
@@ -184,7 +189,6 @@ public class CodeGenerator {
             AndroidManifest androidManifest = new XmlHandler<AndroidManifest>().parse(AndroidManifest.class, manifestXmlString);
             if (androidManifest!=null) {
                 String packageName = androidManifest.getPackageName();
-                List<ActivityEntry> activities = null;
                 ActivityEntry launcherActivity = null;
 
                 if (androidManifest.getApplication()!=null
@@ -192,6 +196,23 @@ public class CodeGenerator {
                     activities = androidManifest.getApplication().getActivities();
 
                     List<IntentFilterEntry> intentFilterEntryList = null;
+
+                    List<ActivityEntry> removeList = new ArrayList<ActivityEntry>();
+                    for (ActivityEntry activityEntry:activities) {
+                        if (activityEntry.getName()!=null && activityEntry.getName().startsWith("."))  {
+                            activityEntry.setName(packageName+activityEntry.getName());
+                        }
+
+                        if (activityEntry.getName()!=null && !activityEntry.getName().startsWith(packageName)) {
+                            removeList.add(activityEntry);
+                        }
+                    }
+
+                    // 删除一些使用第三方sdk的activity
+                    if (Preconditions.isNotBlank(removeList)) {
+                        activities.removeAll(removeList);
+                    }
+
                     for(ActivityEntry activityEntry:activities) {
                         if (Preconditions.isNotBlank(activityEntry.getIntentFilter())) {
                             intentFilterEntryList = activityEntry.getIntentFilter();
@@ -212,11 +233,7 @@ public class CodeGenerator {
                 }
 
                 // 获取启动的activity, 在启动的activity中注册mLink
-                if (launcherActivity!=null) {
-                    if (launcherActivity.getName()!=null && launcherActivity.getName().startsWith(".")) {
-                        launcherActivity.setName(packageName+launcherActivity.getName());
-                    }
-
+                if (launcherActivity!=null && Preconditions.isNotBlank(launcherActivity.getName())) {
                     PsiClass launcherClass = PluginUtils.getClassForProject(mProject,launcherActivity.getName());
                     if (launcherClass!=null) {
                         generateMLinkConfig(launcherClass);
@@ -236,6 +253,37 @@ public class CodeGenerator {
                         generateInitMWConfigForApplication(applicationClass,channel);
                     } else {
                         PluginUtils.showErrorNotification(mProject, "无法找到"+androidManifest.getApplication().getName());
+                    }
+                }
+            }
+        }
+    }
+
+    public List<ActivityEntry> getActivities() {
+        return activities;
+    }
+
+    public void generateMLinkAnnotation(List<ActivityEntry> activities) {
+
+        String activityName = null;
+        String mlinkKey = null;
+        PsiModifierList modifierList = null;
+        PsiClass mLinkAnnotationClass = PluginUtils.getClassForProject(mProject,"com.zxinsight.mlink.annotation.MLinkRouter");
+        PsiClass clazz = null;
+        PsiJavaFile javaFile = null;
+        if (mLinkAnnotationClass!=null) {
+
+            for (ActivityEntry activity:activities) {
+                activityName = activity.getName();
+                mlinkKey = activity.mlinkKey;
+                clazz = PluginUtils.getClassForProject(mProject,activityName);
+                if (clazz!=null) {
+
+                    javaFile = (PsiJavaFile)clazz.getContainingFile();
+                    if (javaFile!=null) {
+                        javaFile.importClass(mLinkAnnotationClass);
+                        modifierList = clazz.getModifierList();
+                        modifierList.addAnnotation("MLinkRouter(keys={\""+mlinkKey+"\"})");
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package cn.magicwindow.sdk.plugin;
 
+import cn.magicwindow.sdk.plugin.model.ActivityEntry;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
@@ -13,6 +14,8 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.EverythingGlobalScope;
 import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * Created by tony on 16/7/5.

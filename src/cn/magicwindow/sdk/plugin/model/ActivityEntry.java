@@ -5,6 +5,7 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * Created by tony on 16/8/3.
@@ -20,6 +21,9 @@ public class ActivityEntry {
 
     @ElementList(entry = "intent-filter", inline = true, required = false)
     private List<IntentFilterEntry> intentFilter;
+
+    public boolean isClick = false;
+    public String mlinkKey = "";
 
     public String getName() {
         return name;
@@ -43,5 +47,9 @@ public class ActivityEntry {
 
     public void setIntentFilter(List<IntentFilterEntry> intentFilter) {
         this.intentFilter = intentFilter;
+    }
+
+    public boolean checkValidity() {
+        return true;
     }
 }
