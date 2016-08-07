@@ -13,17 +13,8 @@ public class EntryHeader extends JPanel {
     protected JLabel mType;
     protected JLabel mID;
     protected JLabel mName;
-//    protected OnCheckBoxStateChangedListener mAllListener;
-
-//    public void setAllListener(final OnCheckBoxStateChangedListener onStateChangedListener) {
-//        this.mAllListener = onStateChangedListener;
-//    }
 
     public EntryHeader() {
-//        mAllCheck = new JCheckBox();
-//        mAllCheck.setPreferredSize(new Dimension(40, 26));
-//        mAllCheck.setSelected(false);
-////        mAllCheck.addItemListener(new AllCheckListener());
 
         mType = new JLabel("Activity Name");
         mType.setPreferredSize(new Dimension(120, 26));
@@ -46,15 +37,4 @@ public class EntryHeader extends JPanel {
         add(mName);
         add(Box.createHorizontalGlue());
     }
-
-    // classes
-
-//    private class AllCheckListener implements ItemListener {
-//        @Override
-//        public void itemStateChanged(ItemEvent itemEvent) {
-//            if (mAllListener != null) {
-//                mAllListener.changeState(itemEvent.getStateChange() == ItemEvent.SELECTED);
-//            }
-//        }
-//    }
 }

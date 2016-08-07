@@ -1,6 +1,5 @@
 package cn.magicwindow.sdk.plugin.form;
 
-import cn.magicwindow.sdk.plugin.Preconditions;
 import cn.magicwindow.sdk.plugin.model.ActivityEntry;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -10,9 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by tony on 16/8/4.
