@@ -14,7 +14,6 @@ import java.awt.event.FocusListener;
  */
 public class Entry extends JPanel {
 
-    private EntryList mParent;
     private String activityName;
     private ActivityEntry mActivityEntry;
 
@@ -25,9 +24,8 @@ public class Entry extends JPanel {
     private Color mNameDefaultColor;
     private Color mNameErrorColor = new Color(0x880000);
 
-    public Entry(EntryList parent, ActivityEntry activityEntry, String name) {
+    public Entry(ActivityEntry activityEntry, String name) {
 
-        mParent = parent;
         mActivityEntry = activityEntry;
         activityName = name;
 

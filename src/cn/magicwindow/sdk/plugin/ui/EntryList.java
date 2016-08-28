@@ -24,19 +24,19 @@ public class EntryList extends JPanel {
     private JButton mBack;
 
     private IConfirmListener mConfirmListener;
-    private IBackListener mCancelListener;
+    private IBackListener mBackListener;
 
     private List<ActivityEntry> mActivities;
     private ArrayList<Entry> mEntries = new ArrayList<Entry>();
     private List<ActivityEntry> checkedList = new ArrayList<ActivityEntry>();
 
-    public EntryList(Project project, Editor editor, List<ActivityEntry> activities, IConfirmListener confirmListener, IBackListener cancelListener) {
+    public EntryList(Project project, Editor editor, List<ActivityEntry> activities, IConfirmListener confirmListener, IBackListener backListener) {
         mProject = project;
         mEditor = editor;
         mActivities = activities;
 
         mConfirmListener = confirmListener;
-        mCancelListener = cancelListener;
+        mBackListener = backListener;
 
         setPreferredSize(new Dimension(640, 360));
         setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -59,12 +59,13 @@ public class EntryList extends JPanel {
 
         int cnt = 0;
         String name = null;
+        Entry entry = null;
         for (ActivityEntry activity : mActivities) {
             int last = activity.getName().lastIndexOf(".");
             if (last>-1) {
                 name = activity.getName().substring(last+1);
             }
-            Entry entry = new Entry(this, activity, name);
+            entry = new Entry(activity, name);
 
             if (cnt > 0) {
                 injectionsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
@@ -96,7 +97,7 @@ public class EntryList extends JPanel {
         add(holderPanel, BorderLayout.PAGE_END);
 
         mBack = new JButton();
-        mBack.setAction(new CancelAction());
+        mBack.setAction(new BackAction());
         mBack.setPreferredSize(new Dimension(120, 26));
         mBack.setText("Back");
         mBack.setVisible(true);
@@ -166,11 +167,11 @@ public class EntryList extends JPanel {
         }
     }
 
-    private class CancelAction extends AbstractAction {
+    private class BackAction extends AbstractAction {
 
         public void actionPerformed(ActionEvent event) {
-            if (mCancelListener != null) {
-                mCancelListener.onBack();
+            if (mBackListener != null) {
+                mBackListener.onBack();
             }
         }
     }

@@ -8,31 +8,31 @@ import java.awt.*;
  */
 public class EntryHeader extends JPanel {
 
-    protected JLabel mType;
-    protected JLabel mID;
-    protected JLabel mName;
+    protected JLabel activityNameLabel;
+    protected JLabel mLinkRouterLabel;
+    protected JLabel mLinkKeyLabel;
 
     public EntryHeader() {
 
-        mType = new JLabel("Activity Name");
-        mType.setPreferredSize(new Dimension(120, 26));
-        mType.setFont(new Font(mType.getFont().getFontName(), Font.BOLD, mType.getFont().getSize()));
+        activityNameLabel = new JLabel("Activity Name");
+        activityNameLabel.setPreferredSize(new Dimension(120, 26));
+        activityNameLabel.setFont(new Font(activityNameLabel.getFont().getFontName(), Font.BOLD, activityNameLabel.getFont().getSize()));
 
-        mID = new JLabel("MLinkRouter");
-        mID.setPreferredSize(new Dimension(100, 26));
-        mID.setFont(new Font(mID.getFont().getFontName(), Font.BOLD, mID.getFont().getSize()));
+        mLinkRouterLabel = new JLabel("MLinkRouter");
+        mLinkRouterLabel.setPreferredSize(new Dimension(100, 26));
+        mLinkRouterLabel.setFont(new Font(mLinkRouterLabel.getFont().getFontName(), Font.BOLD, mLinkRouterLabel.getFont().getSize()));
 
-        mName = new JLabel("MLink Key");
-        mName.setPreferredSize(new Dimension(100, 26));
-        mName.setFont(new Font(mName.getFont().getFontName(), Font.BOLD, mName.getFont().getSize()));
+        mLinkKeyLabel = new JLabel("MLink Key");
+        mLinkKeyLabel.setPreferredSize(new Dimension(100, 26));
+        mLinkKeyLabel.setFont(new Font(mLinkKeyLabel.getFont().getFontName(), Font.BOLD, mLinkKeyLabel.getFont().getSize()));
 
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
         add(Box.createRigidArea(new Dimension(11, 0)));
-        add(mType);
+        add(activityNameLabel);
         add(Box.createRigidArea(new Dimension(12, 0)));
-        add(mID);
+        add(mLinkRouterLabel);
         add(Box.createRigidArea(new Dimension(22, 0)));
-        add(mName);
+        add(mLinkKeyLabel);
         add(Box.createHorizontalGlue());
     }
 }

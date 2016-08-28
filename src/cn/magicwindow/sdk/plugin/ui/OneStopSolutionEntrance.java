@@ -197,7 +197,7 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
                             String proguard = document.getCharsSequence().toString();
                             String keepContent = addKeepMWSDK(proguard);
 
-                            if (keepContent==null) {
+                            if (Preconditions.isBlank(keepContent)) {
                                 return;
                             }
 
@@ -208,7 +208,7 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
                             document.setText(proguard);
                         }
                     } else {
-                        PluginUtils.showErrorNotification(psiFile.getProject(),"找不到proguard-rules.pro文件");
+                        PluginUtils.showErrorNotification(project,"找不到proguard-rules.pro文件");
                     }
                 }
             };
