@@ -135,29 +135,47 @@ public class CodeGenerator {
         if (onCreate!=null) {
             PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
 
-            PsiMethod methodFromText = elementFactory.createMethodFromText(generateInitMWConfigCreator(channel), psiClass);
-            PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",psiClass);
+            String initMWConfig = generateInitMWConfigCreator(psiClass,channel);
 
-            JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
-            styleManager.shortenClassReferences(psiClass.add(methodFromText));
-            styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
+            if (Preconditions.isNotBlank(initMWConfig)) {
+                PsiMethod methodFromText = elementFactory.createMethodFromText(initMWConfig, psiClass);
+                PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",psiClass);
+
+                JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
+                styleManager.shortenClassReferences(psiClass.add(methodFromText));
+                styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
+            }
         }
     }
 
-    private String generateInitMWConfigCreator(String channel) {
+    private String generateInitMWConfigCreator(PsiClass psiClass,String channel) {
+
+        PsiFile psiFile = psiClass.getContainingFile();
         StringBuilder sb = new StringBuilder();
 
-        sb.append("private void initMW() {").append("\n");
-        sb.append("com.zxinsight.MWConfiguration config = new com.zxinsight.MWConfiguration(this);").append("\n");
-        sb.append("config.setChannel(\""+channel+"\")").append("\n")
-                .append(".setDebugModel(true)").append("\n")
-                .append(".setPageTrackWithFragment(true)").append("\n")
-                .append(".setWebViewBroadcastOpen(true)").append("\n")
-                .append(".setSharePlatform(MWConfiguration.ORIGINAL)").append("\n")
-                .append(".setMLinkOpen();").append("\n");
-        sb.append("com.zxinsight.MagicWindowSDK.initSDK(config);").append("\n");
-        sb.append("com.zxinsight.Session.setAutoSession(this);");
-        sb.append("}");
+        if (psiFile!=null) {
+            VirtualFile childFile = psiFile.getVirtualFile();
+            Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
+            if (document != null && document.isWritable()) {
+                String content = document.getCharsSequence().toString();
+
+                if (content.indexOf("com.zxinsight.MWConfiguration config = new com.zxinsight.MWConfiguration(this);") == -1
+                        && content.indexOf("MWConfiguration config = new MWConfiguration(this);") == -1) {
+                    sb.append("private void initMW() {").append("\n");
+                    sb.append("com.zxinsight.MWConfiguration config = new com.zxinsight.MWConfiguration(this);").append("\n");
+                    sb.append("config.setChannel(\""+channel+"\")").append("\n")
+                            .append(".setDebugModel(true)").append("\n")
+                            .append(".setPageTrackWithFragment(true)").append("\n")
+                            .append(".setWebViewBroadcastOpen(true)").append("\n")
+                            .append(".setSharePlatform(MWConfiguration.ORIGINAL)").append("\n")
+                            .append(".setMLinkOpen();").append("\n");
+                    sb.append("com.zxinsight.MagicWindowSDK.initSDK(config);").append("\n");
+                    sb.append("com.zxinsight.Session.setAutoSession(this);");
+                    sb.append("}");
+                }
+            }
+        }
+
         return sb.toString();
     }
 

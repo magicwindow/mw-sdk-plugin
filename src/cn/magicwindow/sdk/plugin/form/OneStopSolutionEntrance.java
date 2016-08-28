@@ -52,7 +52,9 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
         firstFram.setLocationRelativeTo(null);
 
         firstPanel = new JPanel();
-        JLabel iconLabel = new JLabel(Messages.getQuestionIcon());
+        String path = "/images/mw.png";
+        ImageIcon icon = new ImageIcon(getClass().getResource(path));
+        JLabel iconLabel = new JLabel(icon);
         Container container = new Container();
         container.setLayout(new BorderLayout());
         container.add(iconLabel, BorderLayout.NORTH);
