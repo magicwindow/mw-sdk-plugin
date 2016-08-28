@@ -146,8 +146,15 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
             firstFram.removeAll();
             firstFram.dispose();
 
-            codeGenerator = new CodeGenerator(psiClass);
-            codeGenerator.generateAll(channel, ak);
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    codeGenerator = new CodeGenerator(psiClass);
+                    codeGenerator.generateAll(channel, ak);
+                }
+            };
+
+            WriteCommandAction.runWriteCommandAction(project, runnable);
 
             secondFram();
         }
