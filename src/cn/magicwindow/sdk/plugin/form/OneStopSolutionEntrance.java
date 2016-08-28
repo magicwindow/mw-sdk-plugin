@@ -3,12 +3,18 @@ package cn.magicwindow.sdk.plugin.form;
 import cn.magicwindow.sdk.plugin.CodeGenerator;
 import cn.magicwindow.sdk.plugin.PluginUtils;
 import cn.magicwindow.sdk.plugin.Preconditions;
+import cn.magicwindow.sdk.plugin.WriteRunnable;
 import cn.magicwindow.sdk.plugin.model.ActivityEntry;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiUtilBase;
 
@@ -33,6 +39,7 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
     private PsiClass psiClass;
     private Editor editor;
     private Project project;
+    private static String PROGUARD_PRO = "proguard-rules.pro";
 
     public OneStopSolutionEntrance(PsiClass psiClass, Editor editor, Project project) {
         this.psiClass = psiClass;
@@ -182,6 +189,29 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
                 @Override
                 public void run() {
                     codeGenerator.generateMLinkAnnotation(activities);
+
+                    PsiFile psiFile = psiClass.getContainingFile();
+                    PsiFile proguardFile = getProguardFile(psiFile);
+                    if (proguardFile!=null) {
+                        VirtualFile childFile = proguardFile.getVirtualFile();
+                        Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
+                        if (document != null && document.isWritable()) {
+                            String proguard = document.getCharsSequence().toString();
+                            String keepContent = addKeepMWSDK(proguard);
+
+                            if (keepContent==null) {
+                                return;
+                            }
+
+                            if (proguard==null) {
+                                proguard = "";
+                            }
+                            proguard += keepContent;
+                            document.setText(proguard);
+                        }
+                    } else {
+                        PluginUtils.showErrorNotification(psiFile.getProject(),"找不到proguard-rules.pro文件");
+                    }
                 }
             };
 
@@ -200,5 +230,45 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
         firstFram();
         channelTextField.setText(channel);
         akTextField.setText(ak);
+    }
+
+    private PsiFile getProguardFile(PsiFile psiFile) {
+        PsiDirectory currentDir = psiFile.getContainingDirectory();
+        PsiFile result = null;
+
+        if (currentDir!=null) {
+            result = currentDir.findFile(PROGUARD_PRO);
+        }
+        if (result == null) {
+            PsiDirectory defaultDir = currentDir.getParentDirectory();
+
+            for (int i=0;i<10;i++) {
+                if (defaultDir.findFile(PROGUARD_PRO)==null) {
+                    defaultDir = defaultDir.getParentDirectory();
+                } else {
+                    break;
+                }
+            }
+
+            result = defaultDir.findFile(PROGUARD_PRO);
+        }
+
+        return result;
+    }
+
+    private String addKeepMWSDK(String proguard) {
+
+        StringBuilder result = new StringBuilder();
+        if (proguard.indexOf("-keep class com.tencent.mm.sdk.** {*;}")==-1) {
+            result.append("\n").append("-keep class com.tencent.mm.sdk.** {*;}");
+        }
+        if (proguard.indexOf("-keep class com.zxinsight.** {*;}")==-1) {
+            result.append("\n").append("-keep class com.zxinsight.** {*;}");
+        }
+        if (proguard.indexOf("-dontwarn com.zxinsight.**")==-1) {
+            result.append("\n").append("-dontwarn com.zxinsight.**");
+        }
+
+        return result.toString();
     }
 }
