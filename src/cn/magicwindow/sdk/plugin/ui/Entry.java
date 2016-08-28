@@ -18,9 +18,9 @@ public class Entry extends JPanel {
     private ActivityEntry mActivityEntry;
 
     // ui
-    private JLabel mType;
-    private JCheckBox mEvent;
-    private JTextField mName;
+    private JLabel activityNameLabel;
+    private JCheckBox mMLinkRouter;
+    private JTextField mLinkKey;
     private Color mNameDefaultColor;
     private Color mNameErrorColor = new Color(0x880000);
 
@@ -29,17 +29,17 @@ public class Entry extends JPanel {
         mActivityEntry = activityEntry;
         activityName = name;
 
-        mEvent = new JCheckBox();
-        mEvent.setPreferredSize(new Dimension(100, 26));
-        mEvent.addChangeListener(new CheckListener());
+        mMLinkRouter = new JCheckBox();
+        mMLinkRouter.setPreferredSize(new Dimension(100, 26));
+        mMLinkRouter.addChangeListener(new CheckListener());
 
-        mType = new JLabel(activityName);
-        mType.setPreferredSize(new Dimension(140, 26));
+        activityNameLabel = new JLabel(activityName);
+        activityNameLabel.setPreferredSize(new Dimension(140, 26));
 
-        mName = new JTextField("", 10);
-        mNameDefaultColor = mName.getBackground();
-        mName.setPreferredSize(new Dimension(100, 26));
-        mName.addFocusListener(new FocusListener() {
+        mLinkKey = new JTextField("", 10);
+        mNameDefaultColor = mLinkKey.getBackground();
+        mLinkKey.setPreferredSize(new Dimension(100, 26));
+        mLinkKey.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
             }
@@ -53,34 +53,34 @@ public class Entry extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
         setMaximumSize(new Dimension(Short.MAX_VALUE, 54));
         add(Box.createRigidArea(new Dimension(10, 0)));
-        add(mType);
+        add(activityNameLabel);
         add(Box.createRigidArea(new Dimension(10, 0)));
-        add(mEvent);
+        add(mMLinkRouter);
         add(Box.createRigidArea(new Dimension(10, 0)));
-        add(mName);
+        add(mLinkKey);
         add(Box.createHorizontalGlue());
 
         checkState();
     }
 
     private void checkState() {
-        if (mEvent.isSelected()) {
-            mType.setEnabled(true);
-            mName.setEnabled(true);
+        if (mMLinkRouter.isSelected()) {
+            activityNameLabel.setEnabled(true);
+            mLinkKey.setEnabled(true);
         } else {
-            mType.setEnabled(false);
-            mName.setEnabled(false);
+            activityNameLabel.setEnabled(false);
+            mLinkKey.setEnabled(false);
         }
     }
 
     public ActivityEntry syncActivityEntry() {
-        mActivityEntry.isClick = mEvent.isSelected();
-        mActivityEntry.mlinkKey = mName.getText();
+        mActivityEntry.isClick = mMLinkRouter.isSelected();
+        mActivityEntry.mlinkKey = mLinkKey.getText();
 
         if (mActivityEntry.checkValidity()) {
-            mName.setBackground(mNameDefaultColor);
+            mLinkKey.setBackground(mNameDefaultColor);
         } else {
-            mName.setBackground(mNameErrorColor);
+            mLinkKey.setBackground(mNameErrorColor);
         }
 
         return mActivityEntry;

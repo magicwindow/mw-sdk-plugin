@@ -1,5 +1,7 @@
 package cn.magicwindow.sdk.plugin.ui;
 
+import cn.magicwindow.sdk.plugin.PluginUtils;
+import cn.magicwindow.sdk.plugin.Preconditions;
 import cn.magicwindow.sdk.plugin.model.ActivityEntry;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -34,6 +36,7 @@ public class EntryList extends JPanel {
         mProject = project;
         mEditor = editor;
         mActivities = activities;
+
 
         mConfirmListener = confirmListener;
         mBackListener = backListener;
@@ -128,41 +131,24 @@ public class EntryList extends JPanel {
         }
     }
 
-    private boolean checkValidity() {
-
-        for (ActivityEntry entry : mActivities) {
-            if (!entry.checkValidity()) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public JButton getConfirmButton() {
-        return mConfirm;
-    }
-
     private class ConfirmAction extends AbstractAction {
 
         public void actionPerformed(ActionEvent event) {
-            boolean valid = checkValidity();
 
             for (Entry entry : mEntries) {
                 entry.syncActivityEntry();
             }
 
-            if (valid) {
-                if (mConfirmListener != null) {
-                    checkedList.clear();
+            if (mConfirmListener != null) {
+                checkedList.clear();
 
-                    for (ActivityEntry entry : mActivities) {
-                        if (entry.isClick && entry.checkValidity()) {
-                            checkedList.add(entry);
-                        }
+                for (ActivityEntry entry : mActivities) {
+                    if (entry.checkValidity()) {
+                        checkedList.add(entry);
                     }
-                    mConfirmListener.onConfirm(mProject, mEditor,checkedList);
                 }
+
+                mConfirmListener.onConfirm(mProject, mEditor,checkedList);
             }
         }
     }

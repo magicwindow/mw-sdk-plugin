@@ -1,5 +1,6 @@
 package cn.magicwindow.sdk.plugin.model;
 
+import cn.magicwindow.sdk.plugin.Preconditions;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
@@ -50,6 +51,7 @@ public class ActivityEntry {
     }
 
     public boolean checkValidity() {
-        return true;
+
+        return isClick && Preconditions.isNotBlank(mlinkKey);
     }
 }
