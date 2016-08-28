@@ -59,4 +59,19 @@ public class Preconditions {
     public static <T> boolean isNotBlank(T t) {
         return !isBlank(t);
     }
+
+    public static boolean isNotBlank(Object... objects) {
+
+        if (objects==null) {
+            return false;
+        }
+
+        for (Object obj:objects) {
+            if (isBlank(obj)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

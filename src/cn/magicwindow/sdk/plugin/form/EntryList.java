@@ -21,7 +21,7 @@ public class EntryList extends JPanel {
 
     private EntryHeader mEntryHeader;
     private JButton mConfirm;
-    private JButton mCancel;
+    private JButton mBack;
 
     private IConfirmListener mConfirmListener;
     private ICancelListener mCancelListener;
@@ -95,11 +95,11 @@ public class EntryList extends JPanel {
         holderPanel.add(Box.createHorizontalGlue());
         add(holderPanel, BorderLayout.PAGE_END);
 
-        mCancel = new JButton();
-        mCancel.setAction(new CancelAction());
-        mCancel.setPreferredSize(new Dimension(120, 26));
-        mCancel.setText("Cancel");
-        mCancel.setVisible(true);
+        mBack = new JButton();
+        mBack.setAction(new CancelAction());
+        mBack.setPreferredSize(new Dimension(120, 26));
+        mBack.setText("Back");
+        mBack.setVisible(true);
 
         mConfirm = new JButton();
         mConfirm.setAction(new ConfirmAction());
@@ -111,7 +111,7 @@ public class EntryList extends JPanel {
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         buttonPanel.add(Box.createHorizontalGlue());
-        buttonPanel.add(mCancel);
+        buttonPanel.add(mBack);
         buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
         buttonPanel.add(mConfirm);
 
