@@ -3,9 +3,7 @@ package cn.magicwindow.sdk.plugin.form;
 import cn.magicwindow.sdk.plugin.CodeGenerator;
 import cn.magicwindow.sdk.plugin.PluginUtils;
 import cn.magicwindow.sdk.plugin.Preconditions;
-import cn.magicwindow.sdk.plugin.WriteRunnable;
 import cn.magicwindow.sdk.plugin.model.ActivityEntry;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -24,7 +22,6 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
 
 /**
  * Created by tony on 16/8/27.

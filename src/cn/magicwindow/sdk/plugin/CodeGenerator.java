@@ -6,8 +6,6 @@ import cn.magicwindow.sdk.plugin.model.AndroidManifest;
 import cn.magicwindow.sdk.plugin.model.IntentCategory;
 import cn.magicwindow.sdk.plugin.model.IntentFilterEntry;
 import cn.magicwindow.sdk.plugin.xml.XmlHandler;
-import com.intellij.codeInsight.AnnotationUtil;
-import com.intellij.codeInsight.daemon.impl.analysis.AnnotationsHighlightUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -15,11 +13,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
-import com.intellij.psi.util.PsiUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * 魔窗sdk的代码生成器
@@ -65,21 +61,40 @@ public class CodeGenerator {
         if (onCreate!=null) {
             PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
 
-            PsiStatement statementFromText = elementFactory.createStatementFromText(generateMLinkConfigCreator(), psiClass);
+            String mlinkConfig = generateMLinkConfigCreator(psiClass);
+            if (Preconditions.isNotBlank(mlinkConfig)) {
 
-            JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
-            styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
+                PsiStatement statementFromText = elementFactory.createStatementFromText(mlinkConfig, psiClass);
+                JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
+                styleManager.shortenClassReferences(onCreate.getBody().add(statementFromText));
+            }
         }
     }
 
-    private String generateMLinkConfigCreator() {
+    private String generateMLinkConfigCreator(PsiClass psiClass) {
+
+        PsiFile psiFile = psiClass.getContainingFile();
         StringBuilder sb = new StringBuilder();
 
-        sb.append("if (com.zxinsight.MagicWindowSDK.getMLink() != null) {").append("\n");
-        sb.append("  com.zxinsight.MagicWindowSDK.getMLink().registerWithAnnotation(this);").append("\n");
-        sb.append("  android.net.Uri mLink = getIntent().getData();").append("\n");
-        sb.append("  com.zxinsight.MagicWindowSDK.getMLink().router(mLink);").append("\n");
-        sb.append("}");
+        if (psiFile!=null) {
+            VirtualFile childFile = psiFile.getVirtualFile();
+            Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
+            if (document != null && document.isWritable()) {
+                String content = document.getCharsSequence().toString();
+
+                if (content.indexOf("if (MagicWindowSDK.getMLink() != null) {") == -1 &&
+                        content.indexOf("if (com.zxinsight.MagicWindowSDK.getMLink() != null) {") ==-1
+                        ) {
+
+                    sb.append("if (com.zxinsight.MagicWindowSDK.getMLink() != null) {").append("\n");
+                    sb.append("  com.zxinsight.MagicWindowSDK.getMLink().registerWithAnnotation(this);").append("\n");
+                    sb.append("  android.net.Uri mLink = getIntent().getData();").append("\n");
+                    sb.append("  com.zxinsight.MagicWindowSDK.getMLink().router(mLink);").append("\n");
+                    sb.append("}");
+                }
+            }
+        }
+
         return sb.toString();
     }
 
