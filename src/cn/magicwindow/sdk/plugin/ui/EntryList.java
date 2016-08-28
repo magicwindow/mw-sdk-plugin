@@ -8,6 +8,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ import java.util.List;
 /**
  * Created by tony on 16/8/4.
  */
-public class EntryList extends JPanel {
+public class EntryList extends JPanel{
 
     private Project mProject;
     private Editor mEditor;
@@ -31,12 +33,12 @@ public class EntryList extends JPanel {
     private List<ActivityEntry> mActivities;
     private ArrayList<Entry> mEntries = new ArrayList<Entry>();
     private List<ActivityEntry> checkedList = new ArrayList<ActivityEntry>();
+    private ActivityEntry defaultEntry;
 
     public EntryList(Project project, Editor editor, List<ActivityEntry> activities, IConfirmListener confirmListener, IBackListener backListener) {
         mProject = project;
         mEditor = editor;
         mActivities = activities;
-
 
         mConfirmListener = confirmListener;
         mBackListener = backListener;
@@ -78,6 +80,8 @@ public class EntryList extends JPanel {
 
             mEntries.add(entry);
         }
+        EntryManager.getInstance().addAll(mEntries);
+
         injectionsPanel.add(Box.createVerticalGlue());
         injectionsPanel.add(Box.createRigidArea(new Dimension(0, 5)));
 

@@ -24,6 +24,7 @@ public class ActivityEntry {
     private List<IntentFilterEntry> intentFilter;
 
     public boolean isClick = false;
+    public boolean isDefault = false;
     public String mlinkKey = "";
 
     public String getName() {
@@ -52,6 +53,8 @@ public class ActivityEntry {
 
     public boolean checkValidity() {
 
-        return isClick && Preconditions.isNotBlank(mlinkKey);
+        return (isClick && Preconditions.isNotBlank(mlinkKey)) || isDefault;
     }
+
+
 }

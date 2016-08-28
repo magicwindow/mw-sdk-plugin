@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
@@ -20,6 +22,7 @@ public class Entry extends JPanel {
     // ui
     private JLabel activityNameLabel;
     private JCheckBox mMLinkRouter;
+    private JCheckBox mLinkDefaultRouter;
     private JTextField mLinkKey;
     private Color mNameDefaultColor;
     private Color mNameErrorColor = new Color(0x880000);
@@ -29,12 +32,50 @@ public class Entry extends JPanel {
         mActivityEntry = activityEntry;
         activityName = name;
 
+        activityNameLabel = new JLabel(activityName);
+        activityNameLabel.setPreferredSize(new Dimension(140, 26));
+
         mMLinkRouter = new JCheckBox();
         mMLinkRouter.setPreferredSize(new Dimension(100, 26));
         mMLinkRouter.addChangeListener(new CheckListener());
 
-        activityNameLabel = new JLabel(activityName);
-        activityNameLabel.setPreferredSize(new Dimension(140, 26));
+        mLinkDefaultRouter = new JCheckBox();
+        mLinkDefaultRouter.setPreferredSize(new Dimension(100, 26));
+        mLinkDefaultRouter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                mActivityEntry.isDefault = mLinkDefaultRouter.isSelected();
+                EntryManager.getInstance().setSelectedEntry(Entry.this);
+                if (mActivityEntry.isDefault) {
+                    activityNameLabel.setEnabled(true);
+                    mMLinkRouter.setEnabled(false);
+                    mMLinkRouter.setSelected(false);
+                    mLinkKey.setEnabled(false);
+                } else {
+                    activityNameLabel.setEnabled(false);
+                    mMLinkRouter.setEnabled(true);
+                    mLinkKey.setEnabled(true);
+                }
+
+                Entry selectedEntry = EntryManager.getInstance().getSelectedEntry();
+                boolean selected = selectedEntry.mLinkDefaultRouter.isSelected();
+                for (Entry entry:EntryManager.getInstance().getAll()) {
+
+                    if (selected) {
+                        if (entry.mActivityEntry.getName().equals(selectedEntry.getmActivityEntry().getName())) {
+                            entry.getmLinkDefaultRouter().setEnabled(true);
+                            entry.getActivityNameLabel().setEnabled(true);
+                        } else {
+                            entry.getmLinkDefaultRouter().setEnabled(false);
+                        }
+                    } else {
+                        entry.getmLinkDefaultRouter().setEnabled(true);
+                    }
+
+                }
+            }
+        });
 
         mLinkKey = new JTextField("", 10);
         mNameDefaultColor = mLinkKey.getBackground();
@@ -56,6 +97,8 @@ public class Entry extends JPanel {
         add(activityNameLabel);
         add(Box.createRigidArea(new Dimension(10, 0)));
         add(mMLinkRouter);
+        add(Box.createRigidArea(new Dimension(10, 0)));
+        add(mLinkDefaultRouter);
         add(Box.createRigidArea(new Dimension(10, 0)));
         add(mLinkKey);
         add(Box.createHorizontalGlue());
@@ -92,5 +135,17 @@ public class Entry extends JPanel {
         public void stateChanged(ChangeEvent event) {
             checkState();
         }
+    }
+
+    public JCheckBox getmLinkDefaultRouter() {
+        return mLinkDefaultRouter;
+    }
+
+    public ActivityEntry getmActivityEntry() {
+        return mActivityEntry;
+    }
+
+    public JLabel getActivityNameLabel() {
+        return activityNameLabel;
     }
 }

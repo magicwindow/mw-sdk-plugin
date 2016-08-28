@@ -306,6 +306,7 @@ public class CodeGenerator {
         String mlinkKey = null;
         PsiModifierList modifierList = null;
         PsiClass mLinkAnnotationClass = PluginUtils.getClassForProject(mProject,"com.zxinsight.mlink.annotation.MLinkRouter");
+        PsiClass mLinkDefAnnotationClass = PluginUtils.getClassForProject(mProject,"com.zxinsight.mlink.annotation.MLinkDefaultRouter");
         PsiClass clazz = null;
         PsiJavaFile javaFile = null;
         if (mLinkAnnotationClass!=null) {
@@ -318,9 +319,15 @@ public class CodeGenerator {
 
                     javaFile = (PsiJavaFile)clazz.getContainingFile();
                     if (javaFile!=null) {
-                        javaFile.importClass(mLinkAnnotationClass);
-                        modifierList = clazz.getModifierList();
-                        modifierList.addAnnotation("MLinkRouter(keys={\""+mlinkKey+"\"})");
+                        if (Preconditions.isNotBlank(mlinkKey)) {
+                            javaFile.importClass(mLinkAnnotationClass);
+                            modifierList = clazz.getModifierList();
+                            modifierList.addAnnotation("MLinkRouter(keys={\""+mlinkKey+"\"})");
+                        } else {
+                            javaFile.importClass(mLinkDefAnnotationClass);
+                            modifierList = clazz.getModifierList();
+                            modifierList.addAnnotation("MLinkDefaultRouter");
+                        }
                     }
                 }
             }
