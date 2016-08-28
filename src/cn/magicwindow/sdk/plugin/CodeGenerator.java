@@ -296,6 +296,10 @@ public class CodeGenerator {
         return activities;
     }
 
+    /**
+     * 在activityies上生成MLink的注解
+     * @param activities
+     */
     public void generateMLinkAnnotation(List<ActivityEntry> activities) {
 
         String activityName = null;

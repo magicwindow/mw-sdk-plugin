@@ -1,9 +1,7 @@
-package cn.magicwindow.sdk.plugin.form;
+package cn.magicwindow.sdk.plugin.ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 /**
  * Created by tony on 16/8/4.

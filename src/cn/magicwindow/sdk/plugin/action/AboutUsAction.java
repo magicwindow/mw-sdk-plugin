@@ -1,6 +1,6 @@
 package cn.magicwindow.sdk.plugin.action;
 
-import cn.magicwindow.sdk.plugin.dialog.AboutUsDialog;
+import cn.magicwindow.sdk.plugin.ui.dialog.AboutUsDialog;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;

@@ -1,4 +1,4 @@
-package cn.magicwindow.sdk.plugin.form;
+package cn.magicwindow.sdk.plugin.ui;
 
 import cn.magicwindow.sdk.plugin.CodeGenerator;
 import cn.magicwindow.sdk.plugin.PluginUtils;
@@ -9,7 +9,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDirectory;

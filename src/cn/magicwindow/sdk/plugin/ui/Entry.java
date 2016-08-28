@@ -1,4 +1,4 @@
-package cn.magicwindow.sdk.plugin.form;
+package cn.magicwindow.sdk.plugin.ui;
 
 import cn.magicwindow.sdk.plugin.model.ActivityEntry;
 
@@ -8,7 +8,6 @@ import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.util.ArrayList;
 
 /**
  * Created by tony on 16/8/4.

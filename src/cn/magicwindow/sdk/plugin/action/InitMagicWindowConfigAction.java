@@ -1,7 +1,7 @@
 package cn.magicwindow.sdk.plugin.action;
 
 import cn.magicwindow.sdk.plugin.CodeGenerator;
-import cn.magicwindow.sdk.plugin.dialog.ConfigDialog;
+import cn.magicwindow.sdk.plugin.ui.dialog.ConfigDialog;
 import cn.magicwindow.sdk.plugin.PluginUtils;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.command.WriteCommandAction;

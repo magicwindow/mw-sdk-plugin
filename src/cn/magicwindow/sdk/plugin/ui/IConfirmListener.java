@@ -1,10 +1,9 @@
-package cn.magicwindow.sdk.plugin.form;
+package cn.magicwindow.sdk.plugin.ui;
 
 import cn.magicwindow.sdk.plugin.model.ActivityEntry;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

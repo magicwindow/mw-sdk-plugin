@@ -1,7 +1,7 @@
 package cn.magicwindow.sdk.plugin.action;
 
 
-import cn.magicwindow.sdk.plugin.form.OneStopSolutionEntrance;
+import cn.magicwindow.sdk.plugin.ui.OneStopSolutionEntrance;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Editor;
