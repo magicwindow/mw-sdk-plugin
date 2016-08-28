@@ -25,7 +25,7 @@ import java.awt.event.ActionListener;
 /**
  * Created by tony on 16/8/27.
  */
-public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,ICancelListener {
+public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,IBackListener {
 
     private JFrame firstFram,secondFram;
     private JPanel firstPanel;
@@ -222,7 +222,7 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
     }
 
     @Override
-    public void onCancel() {
+    public void onBack() {
         secondFram.removeAll();
         secondFram.dispose();
         firstFram();

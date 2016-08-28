@@ -24,13 +24,13 @@ public class EntryList extends JPanel {
     private JButton mBack;
 
     private IConfirmListener mConfirmListener;
-    private ICancelListener mCancelListener;
+    private IBackListener mCancelListener;
 
     private List<ActivityEntry> mActivities;
     private ArrayList<Entry> mEntries = new ArrayList<Entry>();
     private List<ActivityEntry> checkedList = new ArrayList<ActivityEntry>();
 
-    public EntryList(Project project, Editor editor, List<ActivityEntry> activities, IConfirmListener confirmListener, ICancelListener cancelListener) {
+    public EntryList(Project project, Editor editor, List<ActivityEntry> activities, IConfirmListener confirmListener, IBackListener cancelListener) {
         mProject = project;
         mEditor = editor;
         mActivities = activities;
@@ -170,7 +170,7 @@ public class EntryList extends JPanel {
 
         public void actionPerformed(ActionEvent event) {
             if (mCancelListener != null) {
-                mCancelListener.onCancel();
+                mCancelListener.onBack();
             }
         }
     }
