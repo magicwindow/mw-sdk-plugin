@@ -23,8 +23,6 @@ public class SDKVersionAction extends BaseAction {
 
     private final static String SDK_PATH = "com.zxinsight.MagicWindowSDK";
     private final static String SDK_VERSION_METHOD = "getSDKVersion";
-//    private final static String SDK_ROOT_PACKAGE = "com.zxinsight";
-//    private List<PsiClass> allClasses = new ArrayList<PsiClass>();
 
     @Override
     public void actionPerformed(AnActionEvent e) {
@@ -49,29 +47,6 @@ public class SDKVersionAction extends BaseAction {
             }
         }
 
-//        PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage(SDK_ROOT_PACKAGE);
-
-//        allClasses.clear();
-//        if (psiPackage!=null) {
-//            if (Preconditions.isNotBlank(psiPackage.getClasses())) {
-//                allClasses.addAll(Arrays.asList(psiPackage.getClasses()));
-//            }
-//            recursionPackage(psiPackage);
-//        }
-//
-//        if (Preconditions.isNotBlank(allClasses)) {
-//            int methodCount = 0;
-//            for (PsiClass clazz:allClasses) {
-//                if (Preconditions.isNotBlank(clazz.getAllMethods())){
-//                    methodCount += clazz.getAllMethods().length;
-//                }
-//            }
-//
-//            if (methodCount>0) {
-//                message += "\r\n" + "当前版本sdk方法数:"+methodCount;
-//            }
-//        }
-
         Messages.showMessageDialog(project,message,
                 "MagicWindow SDK 信息",
                 Messages.getWarningIcon());
@@ -93,25 +68,4 @@ public class SDKVersionAction extends BaseAction {
         }
         return null;
     }
-//
-//    /**
-//     * 递归获取sdk的类
-//     * @param psiPackage
-//     */
-//    public void recursionPackage(PsiPackage psiPackage) {
-//
-//        PsiPackage[] packages = psiPackage.getSubPackages();
-//        if (packages == null)
-//            return;
-//
-//        for (PsiPackage item:packages) {
-//            if (item.getSubPackages()!=null) {
-//                if (Preconditions.isNotBlank(item.getClasses())) {
-//                    allClasses.addAll(Arrays.asList(item.getClasses()));
-//                }
-//
-//                recursionPackage(item);
-//            }
-//        }
-//    }
 }

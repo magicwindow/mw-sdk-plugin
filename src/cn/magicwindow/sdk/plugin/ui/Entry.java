@@ -107,12 +107,12 @@ public class Entry extends JPanel {
     }
 
     private void checkState() {
-        if (mMLinkRouter.isSelected()) {
-            activityNameLabel.setEnabled(true);
-            mLinkKey.setEnabled(true);
-        } else {
-            activityNameLabel.setEnabled(false);
-            mLinkKey.setEnabled(false);
+
+        activityNameLabel.setEnabled(mMLinkRouter.isSelected());
+        mLinkKey.setEnabled(mMLinkRouter.isSelected());
+
+        if (!mMLinkRouter.isSelected()) {
+            mLinkKey.setText("");
         }
     }
 
