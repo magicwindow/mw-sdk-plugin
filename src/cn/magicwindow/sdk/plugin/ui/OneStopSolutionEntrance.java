@@ -255,6 +255,11 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
         return result;
     }
 
+    /**
+     * 添加keep语句,如果proguard文件里已经有了,则不会多次添加
+     * @param proguard
+     * @return
+     */
     private String addKeepMWSDK(String proguard) {
 
         StringBuilder result = new StringBuilder();

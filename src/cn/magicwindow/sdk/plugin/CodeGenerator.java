@@ -82,6 +82,7 @@ public class CodeGenerator {
             if (document != null && document.isWritable()) {
                 String content = document.getCharsSequence().toString();
 
+                // 表示没有初始化过MLink
                 if (content.indexOf("if (MagicWindowSDK.getMLink() != null) {") == -1 &&
                         content.indexOf("if (com.zxinsight.MagicWindowSDK.getMLink() != null) {") ==-1
                         ) {
@@ -159,6 +160,7 @@ public class CodeGenerator {
             if (document != null && document.isWritable()) {
                 String content = document.getCharsSequence().toString();
 
+                // 表示没有初始化过魔窗的sdk
                 if (content.indexOf("com.zxinsight.MWConfiguration config = new com.zxinsight.MWConfiguration(this);") == -1
                         && content.indexOf("MWConfiguration config = new MWConfiguration(this);") == -1) {
                     sb.append("private void initMW() {").append("\n");
