@@ -183,7 +183,6 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
 
         if (Preconditions.isNotBlank(activities)) {
 
-            System.out.println(activities.size());
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {

@@ -16,6 +16,8 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 魔窗sdk的代码生成器
@@ -26,6 +28,9 @@ public class CodeGenerator {
     private PsiClass mClass;
     private Project mProject;
     private List<ActivityEntry> activities = null;
+    private static final String CHANNEL_PATTERN = "config.setChannel\\(\"" + "[0-9a-zA-Z]{0,}" + "\"\\)";
+    private static final String MW_APPID_PATTERN = "<meta-data android:name=\"MW_APPID\" android:value=\"" + "[0-9a-zA-Z]{0,}" + "\" />";
+    private static final String MW_CHANNEL_PATTERN = "<meta-data android:name=\"MW_CHANNEL\" android:value=\"" + "[0-9a-zA-Z]{0,}" + "\" />";
 
     public CodeGenerator(PsiClass psiClass) {
         if (psiClass == null) {
@@ -46,6 +51,7 @@ public class CodeGenerator {
 
     /**
      * 根据某个类来生成mLink的配置
+     *
      * @param psiClass
      */
     private void generateMLinkConfig(PsiClass psiClass) {
@@ -53,12 +59,12 @@ public class CodeGenerator {
         PsiMethod onCreate = null;
         try {
             onCreate = psiClass.findMethodsByName("onCreate", false)[0];
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             PluginUtils.showErrorNotification(mProject, "MLink的配置只能在App的引导页或者首页的onCreate()中");
             return;
         }
 
-        if (onCreate!=null) {
+        if (onCreate != null) {
             PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
 
             String mlinkConfig = generateMLinkConfigCreator(psiClass);
@@ -76,7 +82,7 @@ public class CodeGenerator {
         PsiFile psiFile = psiClass.getContainingFile();
         StringBuilder sb = new StringBuilder();
 
-        if (psiFile!=null) {
+        if (psiFile != null) {
             VirtualFile childFile = psiFile.getVirtualFile();
             Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
             if (document != null && document.isWritable()) {
@@ -84,7 +90,7 @@ public class CodeGenerator {
 
                 // 表示没有初始化过MLink
                 if (content.indexOf("if (MagicWindowSDK.getMLink() != null) {") == -1 &&
-                        content.indexOf("if (com.zxinsight.MagicWindowSDK.getMLink() != null) {") ==-1
+                        content.indexOf("if (com.zxinsight.MagicWindowSDK.getMLink() != null) {") == -1
                         ) {
 
                     sb.append("if (com.zxinsight.MagicWindowSDK.getMLink() != null) {").append("\n");
@@ -101,46 +107,52 @@ public class CodeGenerator {
 
     /**
      * 生成初始化魔窗sdk的配置
+     *
      * @param channel
      * @param ak
      */
-    public void generateInitMWConfig(String channel,String ak) {
+    public void generateInitMWConfig(String channel, String ak) {
 
-        generateInitMWConfigForApplication(mClass,channel);
+        generateInitMWConfigForApplication(mClass, channel);
 
         // 生成AndroidManifest.xml的配置
         PsiFile manifest = PluginUtils.getAndroidManifest(mClass);
-        if (manifest!=null) {
+        if (manifest != null) {
             VirtualFile childFile = manifest.getVirtualFile();
             Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
             if (document != null && document.isWritable()) {
                 String androidManifest = document.getCharsSequence().toString();
-                androidManifest = androidManifest.replace("</application>", generateAndroidManifest(channel,ak)+"\n\n </application>");
-                Runnable writeRunnable = new WriteRunnable(androidManifest, document);
-                ApplicationManager.getApplication().runWriteAction(writeRunnable);
+
+                String content = generateAndroidManifest(document,androidManifest,channel, ak);
+
+                if (Preconditions.isNotBlank(content)) {
+                    androidManifest = androidManifest.replace("</application>", content + "\n\n </application>");
+                    Runnable writeRunnable = new WriteRunnable(androidManifest, document);
+                    ApplicationManager.getApplication().runWriteAction(writeRunnable);
+                }
             }
         } else {
-            PluginUtils.showErrorNotification(mProject,"找不到AndroidManifest.xml文件");
+            PluginUtils.showErrorNotification(mProject, "找不到AndroidManifest.xml文件");
         }
     }
 
-    private void generateInitMWConfigForApplication(PsiClass psiClass,String channel) {
+    private void generateInitMWConfigForApplication(PsiClass psiClass, String channel) {
         PsiMethod onCreate = null;
         try {
             onCreate = psiClass.findMethodsByName("onCreate", false)[0];
-        } catch(ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException e) {
             PluginUtils.showErrorNotification(mProject, "SDK初始化配置只能在App的引导页、首页或者Application的onCreate()中");
             return;
         }
 
-        if (onCreate!=null) {
+        if (onCreate != null) {
             PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(mProject);
 
-            String initMWConfig = generateInitMWConfigCreator(psiClass,channel);
+            String initMWConfig = generateInitMWConfigCreator(psiClass, channel);
 
             if (Preconditions.isNotBlank(initMWConfig)) {
                 PsiMethod methodFromText = elementFactory.createMethodFromText(initMWConfig, psiClass);
-                PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();",psiClass);
+                PsiStatement statementFromText = elementFactory.createStatementFromText("initMW();", psiClass);
 
                 JavaCodeStyleManager styleManager = JavaCodeStyleManager.getInstance(mProject);
                 styleManager.shortenClassReferences(psiClass.add(methodFromText));
@@ -149,12 +161,12 @@ public class CodeGenerator {
         }
     }
 
-    private String generateInitMWConfigCreator(PsiClass psiClass,String channel) {
+    private String generateInitMWConfigCreator(PsiClass psiClass, String channel) {
 
         PsiFile psiFile = psiClass.getContainingFile();
         StringBuilder sb = new StringBuilder();
 
-        if (psiFile!=null) {
+        if (psiFile != null) {
             VirtualFile childFile = psiFile.getVirtualFile();
             Document document = FileDocumentManager.getInstance().getCachedDocument(childFile);
             if (document != null && document.isWritable()) {
@@ -165,7 +177,7 @@ public class CodeGenerator {
                         && content.indexOf("MWConfiguration config = new MWConfiguration(this);") == -1) {
                     sb.append("private void initMW() {").append("\n");
                     sb.append("com.zxinsight.MWConfiguration config = new com.zxinsight.MWConfiguration(this);").append("\n");
-                    sb.append("config.setChannel(\""+channel+"\")").append("\n")
+                    sb.append("config.setChannel(\"" + channel + "\")").append("\n")
                             .append(".setDebugModel(true)").append("\n")
                             .append(".setPageTrackWithFragment(true)").append("\n")
                             .append(".setWebViewBroadcastOpen(true)").append("\n")
@@ -176,9 +188,8 @@ public class CodeGenerator {
                     sb.append("}");
                 } else {
                     // 如果已经初始化过魔窗sdk,替换渠道
-                    String channelPattern = "config.setChannel\\(\""+"[0-9a-zA-Z]{0,}"+"\"\\)";
-                    String newChannel = "config.setChannel(\""+channel+"\")";
-                    content = content.replaceFirst(channelPattern,newChannel);
+                    String newChannel = "config.setChannel(\"" + channel + "\")";
+                    content = content.replaceFirst(CHANNEL_PATTERN, newChannel);
                     Runnable writeRunnable = new WriteRunnable(content, document);
                     ApplicationManager.getApplication().runWriteAction(writeRunnable);
                 }
@@ -188,64 +199,87 @@ public class CodeGenerator {
         return sb.toString();
     }
 
-    private String generateAndroidManifest(String channel,String ak) {
+    private String generateAndroidManifest(Document document,String androidManifest,String channel, String ak) {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("<!--总的activity，必须注册！！！ -->");
-        sb.append("\n");
-        sb.append("<activity android:name=\"com.zxinsight.common.base.MWActivity\" android:exported=\"true\"\n" +
-                "        android:configChanges=\"orientation|keyboardHidden|screenSize|navigation\"/>");
-        sb.append("\n");
-        sb.append("<!--MW sdk ID 此处跟activity同级，需要放在Application内，MW_APPID（也就是后台的” 魔窗AppKey”）不能更改 -->");
-        sb.append("\n");
-        sb.append("<meta-data android:name=\"MW_APPID\" android:value=\""+ak+"\" />");
-        sb.append("\n");
-        sb.append("<!--渠道名称MW_CHANNEL不能更改 -->");
-        sb.append("\n");
-        sb.append("<meta-data android:name=\"MW_CHANNEL\" android:value=\""+channel+"\" />");
+
+        Pattern appPattern = Pattern.compile(MW_APPID_PATTERN);
+        Matcher appMatcher = appPattern.matcher(androidManifest);
+
+        Pattern channelPattern = Pattern.compile(MW_CHANNEL_PATTERN);
+        Matcher channelMatcher = channelPattern.matcher(androidManifest);
+        if (appMatcher.find() && channelMatcher.find()) {
+
+            // 如果已经初始化过魔窗sdk,替换渠道
+            String newAppID = "<meta-data android:name=\"MW_APPID\" android:value=\"" + ak + "\" />";
+            androidManifest = androidManifest.replaceFirst(MW_APPID_PATTERN, newAppID);
+            String newChannel = "<meta-data android:name=\"MW_CHANNEL\" android:value=\"" + channel + "\" />";
+            androidManifest = androidManifest.replaceFirst(MW_CHANNEL_PATTERN, newChannel);
+            Runnable writeRunnable = new WriteRunnable(androidManifest, document);
+            ApplicationManager.getApplication().runWriteAction(writeRunnable);
+        } else {
+            sb.append("<!--总的activity，必须注册！！！ -->");
+            sb.append("\n");
+            sb.append("<activity android:name=\"com.zxinsight.common.base.MWActivity\" android:exported=\"true\"\n" +
+                    "        android:configChanges=\"orientation|keyboardHidden|screenSize|navigation\"/>");
+            sb.append("\n");
+            sb.append("<!--MW sdk ID 此处跟activity同级，需要放在Application内，MW_APPID（也就是后台的” 魔窗AppKey”）不能更改 -->");
+            sb.append("\n");
+            sb.append("<meta-data android:name=\"MW_APPID\" android:value=\"" + ak + "\" />");
+            sb.append("\n");
+            sb.append("<!--渠道名称MW_CHANNEL不能更改 -->");
+            sb.append("\n");
+            sb.append("<meta-data android:name=\"MW_CHANNEL\" android:value=\"" + channel + "\" />");
+        }
+
         return sb.toString();
     }
 
-    public void generateAll(String channel,String ak) {
+    public void generateAll(String channel, String ak) {
 
         PsiFile manifest = PluginUtils.getAndroidManifest(mClass);
         VirtualFile childFile = null;
         Document document = null;
         String manifestXmlString = null;
-        if (manifest!=null) {
+        if (manifest != null) {
             childFile = manifest.getVirtualFile();
             document = FileDocumentManager.getInstance().getCachedDocument(childFile);
             if (document != null && document.isWritable()) {
                 manifestXmlString = document.getCharsSequence().toString();
-                manifestXmlString = manifestXmlString.replace("</application>", generateAndroidManifest(channel,ak)+"\n\n </application>");
-                Runnable writeRunnable = new WriteRunnable(manifestXmlString, document);
-                ApplicationManager.getApplication().runWriteAction(writeRunnable);
+
+                String content = generateAndroidManifest(document,manifestXmlString,channel, ak);
+
+                if (Preconditions.isNotBlank(content)) {
+                    manifestXmlString = manifestXmlString.replace("</application>", content + "\n\n </application>");
+                    Runnable writeRunnable = new WriteRunnable(manifestXmlString, document);
+                    ApplicationManager.getApplication().runWriteAction(writeRunnable);
+                }
             }
         } else {
-            PluginUtils.showErrorNotification(mProject,"找不到AndroidManifest.xml文件");
+            PluginUtils.showErrorNotification(mProject, "找不到AndroidManifest.xml文件");
             return;
         }
 
         // 解析manifest文件
-        if (manifestXmlString!=null) {
+        if (manifestXmlString != null) {
             AndroidManifest androidManifest = new XmlHandler<AndroidManifest>().parse(AndroidManifest.class, manifestXmlString);
-            if (androidManifest!=null) {
+            if (androidManifest != null) {
                 String packageName = androidManifest.getPackageName();
                 ActivityEntry launcherActivity = null;
 
-                if (androidManifest.getApplication()!=null
+                if (androidManifest.getApplication() != null
                         && Preconditions.isNotBlank(androidManifest.getApplication().getActivities())) {
                     activities = androidManifest.getApplication().getActivities();
 
                     List<IntentFilterEntry> intentFilterEntryList = null;
 
                     List<ActivityEntry> removeList = new ArrayList<ActivityEntry>();
-                    for (ActivityEntry activityEntry:activities) {
-                        if (activityEntry.getName()!=null && activityEntry.getName().startsWith("."))  {
-                            activityEntry.setName(packageName+activityEntry.getName());
+                    for (ActivityEntry activityEntry : activities) {
+                        if (activityEntry.getName() != null && activityEntry.getName().startsWith(".")) {
+                            activityEntry.setName(packageName + activityEntry.getName());
                         }
 
-                        if (activityEntry.getName()!=null && !activityEntry.getName().startsWith(packageName)) {
+                        if (activityEntry.getName() != null && !activityEntry.getName().startsWith(packageName)) {
                             removeList.add(activityEntry);
                         }
                     }
@@ -255,46 +289,46 @@ public class CodeGenerator {
                         activities.removeAll(removeList);
                     }
 
-                    for(ActivityEntry activityEntry:activities) {
+                    for (ActivityEntry activityEntry : activities) {
                         if (Preconditions.isNotBlank(activityEntry.getIntentFilter())) {
                             intentFilterEntryList = activityEntry.getIntentFilter();
 
-                           for (IntentFilterEntry intentFilterEntry:intentFilterEntryList) {
-                               if (Preconditions.isNotBlank(intentFilterEntry.getCategories())) {
-                                   List<IntentCategory> intentCategories = intentFilterEntry.getCategories();
-                                   for (IntentCategory category:intentCategories) {
-                                       if ("android.intent.category.LAUNCHER".equals(category.getName())) {
-                                           launcherActivity = activityEntry;
-                                           break;
-                                       }
-                                   }
-                               }
+                            for (IntentFilterEntry intentFilterEntry : intentFilterEntryList) {
+                                if (Preconditions.isNotBlank(intentFilterEntry.getCategories())) {
+                                    List<IntentCategory> intentCategories = intentFilterEntry.getCategories();
+                                    for (IntentCategory category : intentCategories) {
+                                        if ("android.intent.category.LAUNCHER".equals(category.getName())) {
+                                            launcherActivity = activityEntry;
+                                            break;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
 
                 // 获取启动的activity, 在启动的activity中注册mLink
-                if (launcherActivity!=null && Preconditions.isNotBlank(launcherActivity.getName())) {
-                    PsiClass launcherClass = PluginUtils.getClassForProject(mProject,launcherActivity.getName());
-                    if (launcherClass!=null) {
+                if (launcherActivity != null && Preconditions.isNotBlank(launcherActivity.getName())) {
+                    PsiClass launcherClass = PluginUtils.getClassForProject(mProject, launcherActivity.getName());
+                    if (launcherClass != null) {
                         generateMLinkConfig(launcherClass);
                     } else {
-                        PluginUtils.showErrorNotification(mProject, "无法找到"+launcherActivity.getName());
+                        PluginUtils.showErrorNotification(mProject, "无法找到" + launcherActivity.getName());
                     }
                 }
 
                 // 获取application类, 在自定义的application中注册sdk
-                if (androidManifest.getApplication()!=null && Preconditions.isNotBlank(androidManifest.getApplication().getName())) {
+                if (androidManifest.getApplication() != null && Preconditions.isNotBlank(androidManifest.getApplication().getName())) {
                     if (androidManifest.getApplication().getName().startsWith(".")) {
-                        androidManifest.getApplication().setName(packageName+androidManifest.getApplication().getName());
+                        androidManifest.getApplication().setName(packageName + androidManifest.getApplication().getName());
                     }
 
-                    PsiClass applicationClass = PluginUtils.getClassForProject(mProject,androidManifest.getApplication().getName());
-                    if (applicationClass!=null) {
-                        generateInitMWConfigForApplication(applicationClass,channel);
+                    PsiClass applicationClass = PluginUtils.getClassForProject(mProject, androidManifest.getApplication().getName());
+                    if (applicationClass != null) {
+                        generateInitMWConfigForApplication(applicationClass, channel);
                     } else {
-                        PluginUtils.showErrorNotification(mProject, "无法找到"+androidManifest.getApplication().getName());
+                        PluginUtils.showErrorNotification(mProject, "无法找到" + androidManifest.getApplication().getName());
                     }
                 }
             }
@@ -307,6 +341,7 @@ public class CodeGenerator {
 
     /**
      * 在activityies上生成MLink的注解
+     *
      * @param activities
      */
     public void generateMLinkAnnotation(List<ActivityEntry> activities) {
@@ -314,24 +349,24 @@ public class CodeGenerator {
         String activityName = null;
         String mlinkKey = null;
         PsiModifierList modifierList = null;
-        PsiClass mLinkAnnotationClass = PluginUtils.getClassForProject(mProject,"com.zxinsight.mlink.annotation.MLinkRouter");
-        PsiClass mLinkDefAnnotationClass = PluginUtils.getClassForProject(mProject,"com.zxinsight.mlink.annotation.MLinkDefaultRouter");
+        PsiClass mLinkAnnotationClass = PluginUtils.getClassForProject(mProject, "com.zxinsight.mlink.annotation.MLinkRouter");
+        PsiClass mLinkDefAnnotationClass = PluginUtils.getClassForProject(mProject, "com.zxinsight.mlink.annotation.MLinkDefaultRouter");
         PsiClass clazz = null;
         PsiJavaFile javaFile = null;
-        if (mLinkAnnotationClass!=null) {
+        if (mLinkAnnotationClass != null) {
 
-            for (ActivityEntry activity:activities) {
+            for (ActivityEntry activity : activities) {
                 activityName = activity.getName();
                 mlinkKey = activity.mlinkKey;
-                clazz = PluginUtils.getClassForProject(mProject,activityName);
-                if (clazz!=null) {
+                clazz = PluginUtils.getClassForProject(mProject, activityName);
+                if (clazz != null) {
 
-                    javaFile = (PsiJavaFile)clazz.getContainingFile();
-                    if (javaFile!=null) {
+                    javaFile = (PsiJavaFile) clazz.getContainingFile();
+                    if (javaFile != null) {
                         if (Preconditions.isNotBlank(mlinkKey)) {
                             javaFile.importClass(mLinkAnnotationClass);
                             modifierList = clazz.getModifierList();
-                            modifierList.addAnnotation("MLinkRouter(keys={\""+mlinkKey+"\"})");
+                            modifierList.addAnnotation("MLinkRouter(keys={\"" + mlinkKey + "\"})");
                         } else {
                             javaFile.importClass(mLinkDefAnnotationClass);
                             modifierList = clazz.getModifierList();
