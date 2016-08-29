@@ -174,6 +174,13 @@ public class CodeGenerator {
                     sb.append("com.zxinsight.MagicWindowSDK.initSDK(config);").append("\n");
                     sb.append("com.zxinsight.Session.setAutoSession(this);");
                     sb.append("}");
+                } else {
+                    // 如果已经初始化过魔窗sdk,替换渠道
+                    String channelPattern = "config.setChannel\\(\""+"[0-9a-zA-Z]{0,}"+"\"\\)";
+                    String newChannel = "config.setChannel(\""+channel+"\")";
+                    content = content.replaceFirst(channelPattern,newChannel);
+                    Runnable writeRunnable = new WriteRunnable(content, document);
+                    ApplicationManager.getApplication().runWriteAction(writeRunnable);
                 }
             }
         }
