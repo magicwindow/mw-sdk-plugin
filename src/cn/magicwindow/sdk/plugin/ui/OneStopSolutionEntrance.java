@@ -120,7 +120,7 @@ public class OneStopSolutionEntrance implements ActionListener,IConfirmListener,
     }
 
     private void secondFram(){
-        secondFram = new JFrame();
+        secondFram = new JFrame("自动生成mLink相关Annotation");
         secondFram.setSize(500,400);
         secondFram.setDefaultCloseOperation(3);
         secondFram.setResizable(false);
